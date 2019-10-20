@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>The Swiss Army Calculator</title>
+		<meta charset="utf-8">
+		<!--<link rel="stylesheet" type="text/css" href="/style.css">
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">-->
+		<script src="calc.js" type="text/javascript"></script>
+		<script src="update.js" type="text/javascript"></script>
+	</head>
+	<body>
+		<center>
+		<h1>The Swiss Army Calculator</h1>
+		<p>Made by WatDuhHekBro</p>
+		<p>DISCLAIMER: This site is not affiliated with the Swiss Army.</p>
+		<div style="background-color:rgb(255, 99, 71);margin:10px 0;">Calculators</div>
+		
+		<h2>High Quality Calculators</h2>
+		<a href="https://www.desmos.com/calculator">Desmos</a><p>A general purpose, algebraic, and graphing calculator.</p>
+		<a href="https://www.derivative-calculator.net/">Derivative Calculator</a><br>
+		<a href="https://www.integral-calculator.com/">Integral Calculator</a>
+		
+		<h2>Simple Time Unit Conversion (Inaccurate Above Days)</h2>
+		<p>Unfortunately, you can't change between scientific notation, fraction notation, or pure decimal notation yet.</p>
+		<input type="number" id="input_nanoseconds" oninput="updateConvTime(-3)" value="0">nanoseconds</input><br>
+		<input type="number" id="input_microseconds" oninput="updateConvTime(-2)" value="0">microseconds</input><br>
+		<input type="number" id="input_milliseconds" oninput="updateConvTime(-1)" value="0">milliseconds</input><br>
+		<input type="number" id="input_seconds" oninput="updateConvTime(0)" value="0">seconds</input><br>
+		<input type="number" id="input_minutes" oninput="updateConvTime(1)" value="0">minutes</input><br>
+		<input type="number" id="input_hours" oninput="updateConvTime(2)" value="0">hours</input><br>
+		<input type="number" id="input_days" oninput="updateConvTime(3)" value="0">days</input><br>
+		<input type="number" id="input_weeks" oninput="updateConvTime(4)" value="0">weeks</input><br>
+		<input type="number" id="input_months" oninput="updateConvTime(5)" value="0">months (30d)</input><br>
+		<input type="number" id="input_years" oninput="updateConvTime(6)" value="0">years (365d)</input><br>
+		<p>If you want to calculate more accurate values with weeks, months, and years, use the time calculator. This is only accurate up to the days, and weeks, months, and years are just rough estimates.</p>
+		
+		<h2>Factors of a Number</h2>
+		<input id="input_factors" type="number" oninput="update_factors()" value="0"></input>
+		<p id="factors">null</p>
+		
+		<h2>Ratio Calculator</h2>
+		<input id="input_ratio_a" type="number" oninput="update_ratio_base()" value="0"></input><input id="input_ratio_b" type="number" oninput="update_ratio_base()" value="0"></input>
+		<br><input type="button" value="=" onclick="update_ratio_base()"></input><br>
+		<input id="input_ratio_c" type="number" oninput="update_ratio_c()" value="0"></input><input id="input_ratio_d" type="number" oninput="update_ratio_d()" value="0"></input>
+		
+		<!--<h2>Factoring Calculator</h2>
+		<input id="input_factoring" type="number" oninput="update_factoring()" value="0" style="width: 32px">x² + </input>
+		<input id="input_factoring" type="number" oninput="update_factoring()" value="0" style="width: 32px">x + </input>
+		<input id="input_factoring" type="number" oninput="update_factoring()" value="0" style="width: 32px"></input>
+		<p id="factoring">null</p>-->
+	</body>
+</html>
