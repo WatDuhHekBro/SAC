@@ -2,26 +2,74 @@ function update_factors()
 {
 	var num = Number(document.getElementById('input_factors').value);
 	document.getElementById('factors').innerHTML = "";
+	var f = factors(num,false);
+	document.getElementById('factors').innerHTML += String(factors(num,true)).replace(/,/g,', ');
 	if(num < 0)
-		document.getElementById('factors').innerHTML += "Apply negatives when necessary.<br>";
-	document.getElementById('factors').innerHTML += factors(num);
+		document.getElementById('factors').innerHTML += "<br>Apply negatives when necessary.";
+	document.getElementById('factors').innerHTML += "<br><br>";
+	for(var i = 0; i < f.length; i += 2)
+	{
+		document.getElementById('factors').innerHTML += f[i]+" × ";
+		document.getElementById('factors').innerHTML += (i+1 === f.length) ? f[i]+"<br>" : f[i+1]+"<br>";
+	}
 }
 
 function update_ratio_base()
 {
 	var a = parseInt(document.getElementById('input_ratio_a').value);
 	var b = parseInt(document.getElementById('input_ratio_b').value);
-	var gcf = GCF(a,b);
-	document.getElementById('input_ratio_c').value = a/gcf;
-	document.getElementById('input_ratio_d').value = b/gcf;
+	
+	if(a !== 0 && b !== 0)
+	{
+		var gcf = GCF(a,b);
+		document.getElementById('input_ratio_c').value = a/gcf;
+		document.getElementById('input_ratio_d').value = b/gcf;
+	}
 }
+
+// This function will make it possible to refactor ratios in a future version.
+// EDIT: This defeats the whole purpose of a simple ratio calculator. Use this in a ratio refactorer.
+/*function update_ratio_a()
+{
+	var a = parseInt(document.getElementById('input_ratio_a').value);
+	var b = parseInt(document.getElementById('input_ratio_b').value);
+	var c = parseInt(document.getElementById('input_ratio_c').value);
+	var d = parseInt(document.getElementById('input_ratio_d').value);
+	
+	if(c !== 0 && d !== 0)
+		document.getElementById('input_ratio_c').value = a*d/b;
+	else
+		update_ratio_base();
+}
+
+function update_ratio_b()
+{
+	var a = parseInt(document.getElementById('input_ratio_a').value);
+	var b = parseInt(document.getElementById('input_ratio_b').value);
+	var c = parseInt(document.getElementById('input_ratio_c').value);
+	var d = parseInt(document.getElementById('input_ratio_d').value);
+	
+	if(c !== 0 && d !== 0)
+		document.getElementById('input_ratio_d').value = a*c/b;
+	else
+		update_ratio_base();
+}*/
 
 function update_ratio_c()
 {
 	var a = parseInt(document.getElementById('input_ratio_a').value);
 	var b = parseInt(document.getElementById('input_ratio_b').value);
 	var c = parseInt(document.getElementById('input_ratio_c').value);
-	document.getElementById('input_ratio_d').value = b*(c/a);
+	
+	if(c === 0 || a === 0 || b === 0)
+	{
+		document.getElementById('input_ratio_a').value = 0;
+		document.getElementById('input_ratio_b').value = 0;
+		document.getElementById('input_ratio_c').value = 0;
+		document.getElementById('input_ratio_d').value = 0;
+	}
+	else
+		document.getElementById('input_ratio_d').value = b*(c/a);
 }
 
 function update_ratio_d()
@@ -29,7 +77,16 @@ function update_ratio_d()
 	var a = parseInt(document.getElementById('input_ratio_a').value);
 	var b = parseInt(document.getElementById('input_ratio_b').value);
 	var d = parseInt(document.getElementById('input_ratio_d').value);
-	document.getElementById('input_ratio_c').value = a*(d/b);
+	
+	if(d === 0 || a === 0 || b === 0)
+	{
+		document.getElementById('input_ratio_a').value = 0;
+		document.getElementById('input_ratio_b').value = 0;
+		document.getElementById('input_ratio_c').value = 0;
+		document.getElementById('input_ratio_d').value = 0;
+	}
+	else
+		document.getElementById('input_ratio_c').value = a*(d/b);
 }
 
 function updateConvTime(setting)
