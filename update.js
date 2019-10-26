@@ -89,11 +89,18 @@ function update_ratio_d()
 		document.getElementById('input_ratio_c').value = a*(d/b);
 }
 
+function update_division()
+{
+	var dividend = parseInt(document.getElementById('input_dividend').value);
+	var divisor = parseInt(document.getElementById('input_divisor').value);
+	document.getElementById('quotient').innerHTML = parseInt(dividend/divisor) + " with a remainder of " + parseInt(dividend%divisor);
+}
+
 function updateConvTime(setting)
 {
 	if(setting === -3)
 	{
-		var num = parseInt(document.getElementById('input_nanoseconds').value);
+		var num = Number(document.getElementById('input_nanoseconds').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_nanoseconds').value = 0;}
 		document.getElementById('input_microseconds').value = num/1000;
 		document.getElementById('input_milliseconds').value = num/1000000;
@@ -107,7 +114,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === -2)
 	{
-		var num = parseInt(document.getElementById('input_microseconds').value);
+		var num = Number(document.getElementById('input_microseconds').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_microseconds').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*1000;
 		document.getElementById('input_milliseconds').value = num/1000;
@@ -121,7 +128,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === -1)
 	{
-		var num = parseInt(document.getElementById('input_milliseconds').value);
+		var num = Number(document.getElementById('input_milliseconds').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_milliseconds').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*1000000;
 		document.getElementById('input_microseconds').value = num*1000;
@@ -135,7 +142,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 0)
 	{
-		var num = parseInt(document.getElementById('input_seconds').value);
+		var num = Number(document.getElementById('input_seconds').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_seconds').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*1000000000;
 		document.getElementById('input_microseconds').value = num*1000000;
@@ -149,7 +156,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 1)
 	{
-		var num = parseInt(document.getElementById('input_minutes').value);
+		var num = Number(document.getElementById('input_minutes').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_minutes').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*60000000000;
 		document.getElementById('input_microseconds').value = num*60000000;
@@ -163,7 +170,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 2)
 	{
-		var num = parseInt(document.getElementById('input_hours').value);
+		var num = Number(document.getElementById('input_hours').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_hours').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*3600000000000;
 		document.getElementById('input_microseconds').value = num*3600000000;
@@ -177,7 +184,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 3)
 	{
-		var num = parseInt(document.getElementById('input_days').value);
+		var num = Number(document.getElementById('input_days').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_days').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*86400000000000;
 		document.getElementById('input_microseconds').value = num*86400000000;
@@ -191,7 +198,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 4)
 	{
-		var num = parseInt(document.getElementById('input_weeks').value);
+		var num = Number(document.getElementById('input_weeks').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_weeks').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*604800000000000;
 		document.getElementById('input_microseconds').value = num*604800000000;
@@ -205,7 +212,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 5)
 	{
-		var num = parseInt(document.getElementById('input_months').value);
+		var num = Number(document.getElementById('input_months').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_months').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*2592000000000000;
 		document.getElementById('input_microseconds').value = num*2592000000000;
@@ -219,7 +226,7 @@ function updateConvTime(setting)
 	}
 	else if(setting === 6)
 	{
-		var num = parseInt(document.getElementById('input_years').value);
+		var num = Number(document.getElementById('input_years').value);
 		if(isNaN(num)) {num = 0; document.getElementById('input_years').value = 0;}
 		document.getElementById('input_nanoseconds').value = num*31536000000000000;
 		document.getElementById('input_microseconds').value = num*31536000000000;

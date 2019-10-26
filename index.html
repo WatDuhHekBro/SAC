@@ -23,26 +23,29 @@
 		
 		<h2>Simple Time Unit Conversion (Inaccurate Above Days)</h2>
 		<p>Unfortunately, you can't change between scientific notation, fraction notation, or pure decimal notation yet.</p>
-		<input type="number" id="input_nanoseconds" oninput="updateConvTime(-3)" value="0">nanoseconds</input><br>
-		<input type="number" id="input_microseconds" oninput="updateConvTime(-2)" value="0">microseconds</input><br>
-		<input type="number" id="input_milliseconds" oninput="updateConvTime(-1)" value="0">milliseconds</input><br>
-		<input type="number" id="input_seconds" oninput="updateConvTime(0)" value="0">seconds</input><br>
-		<input type="number" id="input_minutes" oninput="updateConvTime(1)" value="0">minutes</input><br>
-		<input type="number" id="input_hours" oninput="updateConvTime(2)" value="0">hours</input><br>
-		<input type="number" id="input_days" oninput="updateConvTime(3)" value="0">days</input><br>
-		<input type="number" id="input_weeks" oninput="updateConvTime(4)" value="0">weeks</input><br>
-		<input type="number" id="input_months" oninput="updateConvTime(5)" value="0">months (30d)</input><br>
-		<input type="number" id="input_years" oninput="updateConvTime(6)" value="0">years (365d)</input><br>
+		<input type="number" id="input_nanoseconds" oninput="updateConvTime(-3)">nanoseconds</input><br>
+		<input type="number" id="input_microseconds" oninput="updateConvTime(-2)">microseconds</input><br>
+		<input type="number" id="input_milliseconds" oninput="updateConvTime(-1)">milliseconds</input><br>
+		<input type="number" id="input_seconds" oninput="updateConvTime(0)">seconds</input><br>
+		<input type="number" id="input_minutes" oninput="updateConvTime(1)">minutes</input><br>
+		<input type="number" id="input_hours" oninput="updateConvTime(2)">hours</input><br>
+		<input type="number" id="input_days" oninput="updateConvTime(3)">days</input><br>
+		<input type="number" id="input_weeks" oninput="updateConvTime(4)">weeks</input><br>
+		<input type="number" id="input_months" oninput="updateConvTime(5)">months (30d)</input><br>
+		<input type="number" id="input_years" oninput="updateConvTime(6)">years (365d)</input><br>
 		<p>If you want to calculate more accurate values with weeks, months, and years, use the time calculator. This is only accurate up to the days, and weeks, months, and years are just rough estimates.</p>
 		
 		<h2>Factors of a Number</h2>
-		<input id="input_factors" type="number" oninput="update_factors()" value="0"></input>
+		<input id="input_factors" type="number" oninput="update_factors()"></input>
 		<p id="factors">null</p>
 		
 		<h2>Ratio Calculator</h2>
-		<input id="input_ratio_a" type="number" oninput="update_ratio_base()" value="0"></input><input id="input_ratio_b" type="number" oninput="update_ratio_base()" value="0"></input>
+		<input id="input_ratio_a" type="number" oninput="update_ratio_base()"></input><input id="input_ratio_b" type="number" oninput="update_ratio_base()"></input>
 		<br><input type="button" value="=" onclick="update_ratio_base()"></input><br>
-		<input id="input_ratio_c" type="number" oninput="update_ratio_c()" value="0"></input><input id="input_ratio_d" type="number" oninput="update_ratio_d()" value="0"></input>
+		<input id="input_ratio_c" type="number" oninput="update_ratio_c()"></input><input id="input_ratio_d" type="number" oninput="update_ratio_d()"></input>
+		
+		<h2>Division with Remainders</h2>
+		<p><input id="input_dividend" type="number" oninput="update_division()"></input> ÷ <input id="input_divisor" type="number" oninput="update_division()"></input> =</p><p id="quotient"></p>
 		
 		<!--<h2>Age Calculator</h2>
 		<input id="input_age_year" type="number" oninput="update_age()"></input>
@@ -96,12 +99,15 @@
 		<p id="age">0 years, 0 months, 0 days</p>-->
 		
 		<!--<h2>Factoring Calculator</h2>
-		<input id="input_factoring" type="number" oninput="update_factoring()" value="0" style="width: 32px">x² + </input>
-		<input id="input_factoring" type="number" oninput="update_factoring()" value="0" style="width: 32px">x + </input>
-		<input id="input_factoring" type="number" oninput="update_factoring()" value="0" style="width: 32px"></input>
+		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px">x² + </input>
+		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px">x + </input>
+		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px"></input>
 		<p id="factoring">null</p>-->
 		
+		<!--<h2>Properties of a Function (Calculus)</h2>
+		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that Javascript's version of an infinitesimal, Number.MIN_VALUE, is used directly in the definition of a derivative. It is NOT exactly the derivative, so don't expect it to be flawless.</p>-->
+		
 		<br><br><br><br><br><br><br><br><br><br>
-		<p>Last Updated: 25 October 2019 @ 20:50</p>
+		<p>Last Updated: 26 October 2019 @ 04:11 CDT</p>
 	</body>
 </html>
