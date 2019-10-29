@@ -21,8 +21,11 @@
 		<a href="https://www.derivative-calculator.net/">Derivative Calculator</a><br>
 		<a href="https://www.integral-calculator.com/">Integral Calculator</a>
 		
+		<!-- Maybe add a reset button, everything goes to nothing, not zero (since that makes it inconvenient for phone users). -->
+		
 		<h2>Simple Time Unit Conversion (Inaccurate Above Days)</h2>
 		<p>Unfortunately, you can't change between scientific notation, fraction notation, or pure decimal notation yet.</p>
+		<!-- Add a formatter to 3 decimal places eventually, along with the ratios, etc. -->
 		<input type="number" id="input_nanoseconds" oninput="updateConvTime(-3)">nanoseconds</input><br>
 		<input type="number" id="input_microseconds" oninput="updateConvTime(-2)">microseconds</input><br>
 		<input type="number" id="input_milliseconds" oninput="updateConvTime(-1)">milliseconds</input><br>
@@ -36,67 +39,22 @@
 		<p>If you want to calculate more accurate values with weeks, months, and years, use the time calculator. This is only accurate up to the days, and weeks, months, and years are just rough estimates.</p>
 		
 		<h2>Factors of a Number</h2>
-		<input id="input_factors" type="number" oninput="update_factors()"></input>
+		<input type="number" id="input_factors" oninput="update_factors()"></input>
 		<p id="factors">null</p>
 		
 		<h2>Ratio Calculator</h2>
-		<input id="input_ratio_a" type="number" oninput="update_ratio_base()"></input><input id="input_ratio_b" type="number" oninput="update_ratio_base()"></input>
+		<input type="number" id="input_ratio_a" oninput="update_ratio_base()"></input><input type="number" id="input_ratio_b" oninput="update_ratio_base()"></input>
 		<br><input type="button" value="=" onclick="update_ratio_base()"></input><br>
-		<input id="input_ratio_c" type="number" oninput="update_ratio_c()"></input><input id="input_ratio_d" type="number" oninput="update_ratio_d()"></input>
+		<input type="number" id="input_ratio_c" oninput="update_ratio_c()"></input><input type="number" id="input_ratio_d" oninput="update_ratio_d()"></input>
 		
 		<h2>Division with Remainders</h2>
-		<p><input id="input_dividend" type="number" oninput="update_division()"></input> ÷ <input id="input_divisor" type="number" oninput="update_division()"></input> =</p><p id="quotient"></p>
+		<p><input type="number" id="input_dividend" oninput="update_division()"></input> ÷ <input type="number" id="input_divisor" oninput="update_division()"></input> =</p><p id="quotient"></p>
 		
-		<!--<h2>Age Calculator</h2>
-		<input id="input_age_year" type="number" oninput="update_age()"></input>
-		<select onchange="update_age()">
-			<option value="1">January</option>
-			<option value="2">February</option>
-			<option value="3">March</option>
-			<option value="4">April</option>
-			<option value="5">May</option>
-			<option value="6">June</option>
-			<option value="7">July</option>
-			<option value="8">August</option>
-			<option value="9">September</option>
-			<option value="10">October</option>
-			<option value="11">November</option>
-			<option value="12">December</option>
-		</select>
-		<select onchange="update_age()">
-			<option value="1">1</option>
-			<option value="2">2</option>
-			<option value="3">3</option>
-			<option value="4">4</option>
-			<option value="5">5</option>
-			<option value="6">6</option>
-			<option value="7">7</option>
-			<option value="8">8</option>
-			<option value="9">9</option>
-			<option value="10">10</option>
-			<option value="11">11</option>
-			<option value="12">12</option>
-			<option value="13">13</option>
-			<option value="14">14</option>
-			<option value="15">15</option>
-			<option value="16">16</option>
-			<option value="17">17</option>
-			<option value="18">18</option>
-			<option value="19">19</option>
-			<option value="20">20</option>
-			<option value="21">21</option>
-			<option value="22">22</option>
-			<option value="23">23</option>
-			<option value="24">24</option>
-			<option value="25">25</option>
-			<option value="26">26</option>
-			<option value="27">27</option>
-			<option value="28">28</option>
-			<option id="29" value="29">29</option>
-			<option id="30" value="30">30</option>
-			<option id="31" value="31">31</option>
-		</select>
-		<p id="age">0 years, 0 months, 0 days</p>-->
+		<h2>Function</h2>
+		<p>WARNING! This is highly experimental and requires very specific prefix notation (meaning 5 + x turns into + 5 x), and you must put exactly one space between each element.</p>
+		<p>f(x) = <input type="text" id="input_function" oninput="update_function()"></input></p>
+		<p>f(<input type="number" id="input_function_value" oninput="update_function()" value="1" style="width: 32px">) =</p>
+		<p id="output_function"></p>
 		
 		<!--<h2>Factoring Calculator</h2>
 		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px">x² + </input>
@@ -108,6 +66,6 @@
 		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that Javascript's version of an infinitesimal, Number.MIN_VALUE, is used directly in the definition of a derivative. It is NOT exactly the derivative, so don't expect it to be flawless.</p>-->
 		
 		<br><br><br><br><br><br><br><br><br><br>
-		<p>Last Updated: 26 October 2019 @ 04:11 CDT</p>
+		<p>Last Updated: 27 October 2019 @ 21:26 CDT</p>
 	</body>
 </html>

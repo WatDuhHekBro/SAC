@@ -96,6 +96,11 @@ function update_division()
 	document.getElementById('quotient').innerHTML = parseInt(dividend/divisor) + " with a remainder of " + parseInt(dividend%divisor);
 }
 
+function update_function()
+{
+	document.getElementById('output_function').innerHTML = createFunction(document.getElementById('input_function').value).solve(Number(document.getElementById('input_function_value').value));
+}
+
 function updateConvTime(setting)
 {
 	if(setting === -3)

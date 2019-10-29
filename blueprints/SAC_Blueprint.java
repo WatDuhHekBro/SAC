@@ -6,12 +6,6 @@ public class SAC_Blueprint
 	{
 		long start = System.nanoTime();
 		
-		/*System.out.println(ratio(1920,1080,16)); //change to 3 decimal places
-		System.out.println(Arrays.toString(factors(1920)));
-		System.out.println(Arrays.toString(factors(1080)));
-		System.out.println(GCF(1920,1080));
-		System.out.println(ratio(1920,1080));
-		System.out.println(ratio(1080,1920));*/
 		/*TimeUnit a = new TimeUnit(32);
 		TimeUnit b = new TimeUnit(30);
 		System.out.println(TimeUnit.add(a,b));
@@ -24,7 +18,13 @@ public class SAC_Blueprint
 		//System.out.println(Arrays.toString(factors(591823745)));
 		//DateUnit c = new DateUnit(30);
 		//System.out.println(c);
-		System.out.println(Arrays.toString(factors(12345678)));
+		//System.out.println(Arrays.toString(factors(12345678)));
+		//System.out.println(new Function("+ 5 x"));
+		//Function y = new Function("+", new Function("5", null, null), new Function("x", null, null));
+		Function y = new Function("/", new Function("*", new Function("5", null, null), new Function("x", null, null)), new Function("*", new Function("2", null, null), new Function("x", null, null)));
+		System.out.println(y);
+		for(double i = 0; i <= 10; i += 0.5)
+			System.out.println(y.eval(i));
 		
 		System.out.println("\nRuntime: " + String.format("%,d", System.nanoTime() - start) + " nanoseconds (for reference: 1,000,000,000 nanoseconds = 1 second)");
 	}
