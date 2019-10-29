@@ -51,10 +51,12 @@
 		<p><input type="number" id="input_dividend" oninput="update_division()"></input> ÷ <input type="number" id="input_divisor" oninput="update_division()"></input> =</p><p id="quotient"></p>
 		
 		<h2>Function</h2>
-		<p>WARNING! This is highly experimental and requires very specific prefix notation (meaning 5 + x turns into + 5 x), and you must put exactly one space between each element.</p>
+		<p>WARNING: This is highly experimental and requires very specific prefix notation (meaning 5 + x turns into + 5 x), and you must put exactly one space between each element.</p>
+		<!--<p>Infix Notation <input type="text" id="input_notation" oninput="update_notation()"></input> → <input type="text" id="output_notation" readonly></input> Prefix Notation</p>-->
 		<p>f(x) = <input type="text" id="input_function" oninput="update_function()"></input></p>
-		<p>f(<input type="number" id="input_function_value" oninput="update_function()" value="1" style="width: 32px">) =</p>
-		<p id="output_function"></p>
+		<p>f(<input type="number" id="input_function_value" oninput="update_function()" value="1" style="width: 32px">) = <span id="output_function"></span></p>
+		<p>f'(<input type="number" id="input_function_value_derivative" oninput="update_function()" value="1" style="width: 32px">) = <span id="output_function_derivative"></span></p>
+		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that the definition of a derivative is used directly [f(x+h)-f(x)/h]. It is NOT exactly the derivative, so don't expect it to be flawless.</p>
 		
 		<!--<h2>Factoring Calculator</h2>
 		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px">x² + </input>

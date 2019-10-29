@@ -22,28 +22,37 @@ class Function
 	
 	solve(x)
 	{
-		if(this.left === null && this.right === null)
+		if(typeof x === 'number')
 		{
-			if(this.value === 'x')
-				return x;
-			else if(this.value === 'e')
-				return Math.E;
-			else if(this.value === 'pi')
-				return Math.PI;
-			else
-				return Number(this.value);
-		}
-		else if(operators.includes(this.value))
-		{
-			switch(this.value)
+			if(this.left === null && this.right === null)
 			{
-				case '+': return this.left.solve(x) + this.right.solve(x);
-				case '-': return this.left.solve(x) - this.right.solve(x);
-				case '*': return this.left.solve(x) * this.right.solve(x);
-				case '/': return this.left.solve(x) / this.right.solve(x);
-				case '^': return this.left.solve(x) ** this.right.solve(x);
+				if(this.value === 'x')
+					return x;
+				else if(this.value === 'e')
+					return Math.E;
+				else if(this.value === 'pi')
+					return Math.PI;
+				else
+					return Number(this.value);
+			}
+			else if(operators.includes(this.value))
+			{
+				switch(this.value)
+				{
+					case '+': return this.left.solve(x) + this.right.solve(x);
+					case '-': return this.left.solve(x) - this.right.solve(x);
+					case '*': return this.left.solve(x) * this.right.solve(x);
+					case '/': return this.left.solve(x) / this.right.solve(x);
+					case '^': return this.left.solve(x) ** this.right.solve(x);
+				}
 			}
 		}
+	}
+	
+	derivative(x)
+	{
+		if(typeof x === 'number')
+			return Number(((this.solve(x + 0.00000000001) - this.solve(x)) / 0.00000000001).toFixed(3));
 	}
 }
 
@@ -92,6 +101,18 @@ function createFunction(f)
 		}
 	}
 }
+
+/*function infix_prefix(f)
+{
+	// (3x^2+45)/(5x+7/2)
+	// / + * 3 ^ x 2 45 + * 5 x / 7 2
+	
+	f = f.replace(/ /g,'');
+	
+	
+	
+	return f;
+}*/
 
 function factors(num,sort)
 {

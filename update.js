@@ -99,7 +99,13 @@ function update_division()
 function update_function()
 {
 	document.getElementById('output_function').innerHTML = createFunction(document.getElementById('input_function').value).solve(Number(document.getElementById('input_function_value').value));
+	document.getElementById('output_function_derivative').innerHTML = createFunction(document.getElementById('input_function').value).derivative(Number(document.getElementById('input_function_value_derivative').value));
 }
+
+/*function update_notation()
+{
+	document.getElementById('output_notation').value = infix_prefix(document.getElementById('input_notation').value);
+}*/
 
 function updateConvTime(setting)
 {
