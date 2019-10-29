@@ -16,8 +16,8 @@ function update_factors()
 
 function update_ratio_base()
 {
-	var a = parseInt(document.getElementById('input_ratio_a').value);
-	var b = parseInt(document.getElementById('input_ratio_b').value);
+	var a = Number(document.getElementById('input_ratio_a').value);
+	var b = Number(document.getElementById('input_ratio_b').value);
 	
 	if(a !== 0 && b !== 0)
 	{
@@ -31,10 +31,10 @@ function update_ratio_base()
 // EDIT: This defeats the whole purpose of a simple ratio calculator. Use this in a ratio refactorer.
 /*function update_ratio_a()
 {
-	var a = parseInt(document.getElementById('input_ratio_a').value);
-	var b = parseInt(document.getElementById('input_ratio_b').value);
-	var c = parseInt(document.getElementById('input_ratio_c').value);
-	var d = parseInt(document.getElementById('input_ratio_d').value);
+	var a = Number(document.getElementById('input_ratio_a').value);
+	var b = Number(document.getElementById('input_ratio_b').value);
+	var c = Number(document.getElementById('input_ratio_c').value);
+	var d = Number(document.getElementById('input_ratio_d').value);
 	
 	if(c !== 0 && d !== 0)
 		document.getElementById('input_ratio_c').value = a*d/b;
@@ -44,10 +44,10 @@ function update_ratio_base()
 
 function update_ratio_b()
 {
-	var a = parseInt(document.getElementById('input_ratio_a').value);
-	var b = parseInt(document.getElementById('input_ratio_b').value);
-	var c = parseInt(document.getElementById('input_ratio_c').value);
-	var d = parseInt(document.getElementById('input_ratio_d').value);
+	var a = Number(document.getElementById('input_ratio_a').value);
+	var b = Number(document.getElementById('input_ratio_b').value);
+	var c = Number(document.getElementById('input_ratio_c').value);
+	var d = Number(document.getElementById('input_ratio_d').value);
 	
 	if(c !== 0 && d !== 0)
 		document.getElementById('input_ratio_d').value = a*c/b;
@@ -57,9 +57,9 @@ function update_ratio_b()
 
 function update_ratio_c()
 {
-	var a = parseInt(document.getElementById('input_ratio_a').value);
-	var b = parseInt(document.getElementById('input_ratio_b').value);
-	var c = parseInt(document.getElementById('input_ratio_c').value);
+	var a = Number(document.getElementById('input_ratio_a').value);
+	var b = Number(document.getElementById('input_ratio_b').value);
+	var c = Number(document.getElementById('input_ratio_c').value);
 	
 	if(c === 0 || a === 0 || b === 0)
 	{
@@ -74,9 +74,9 @@ function update_ratio_c()
 
 function update_ratio_d()
 {
-	var a = parseInt(document.getElementById('input_ratio_a').value);
-	var b = parseInt(document.getElementById('input_ratio_b').value);
-	var d = parseInt(document.getElementById('input_ratio_d').value);
+	var a = Number(document.getElementById('input_ratio_a').value);
+	var b = Number(document.getElementById('input_ratio_b').value);
+	var d = Number(document.getElementById('input_ratio_d').value);
 	
 	if(d === 0 || a === 0 || b === 0)
 	{
