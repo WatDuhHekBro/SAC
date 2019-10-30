@@ -100,8 +100,16 @@ function update_division()
 
 function update_function()
 {
-	document.getElementById('output_function').innerHTML = createFunction(document.getElementById('input_function').value).solve(Number(document.getElementById('input_function_value').value));
-	document.getElementById('output_function_derivative').innerHTML = createFunction(document.getElementById('input_function').value).pseudo_derivative(Number(document.getElementById('input_function_value_derivative').value));
+	var f = createFunction(document.getElementById('input_function').value);
+	var g = f.derivative().simplified();
+	var val = getNumber('input_function_value');
+	
+	document.getElementById('output_function_value').innerHTML = f.solve(val);
+	document.getElementById('output_function_derivative').innerHTML = g.toStringInfix();
+	document.getElementById('input_function_value_derivative').value = val;
+	document.getElementById('input_function_value_derivative_pseudo').value = val;
+	document.getElementById('output_function_derivative_value').innerHTML = g.solve(val);
+	document.getElementById('output_function_derivative_value_pseudo').innerHTML = f.pseudo_derivative(val);
 }
 
 /*function update_notation()

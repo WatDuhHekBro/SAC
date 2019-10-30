@@ -5,7 +5,9 @@
 		<meta charset="utf-8">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<link rel="stylesheet" type="text/css" href="/style.css">
+		<!-- probably use jquery instead of custom util methods -->
 		<script src="util.js" type="text/javascript"></script>
+		<script src="function.js" type="text/javascript"></script>
 		<script src="calc.js" type="text/javascript"></script>
 		<script src="update.js" type="text/javascript"></script>
 	</head>
@@ -54,9 +56,10 @@
 		<p>WARNING: This is highly experimental and requires very specific prefix notation (meaning 5 + x turns into + 5 x), and you must put exactly one space between each element.</p>
 		<!--<p>Infix Notation <input type="text" id="input_notation" oninput="update_notation()"></input> → <input type="text" id="output_notation" readonly></input> Prefix Notation</p>-->
 		<p>f(x) = <input type="text" id="input_function" oninput="update_function()"></input></p>
-		<p>f(<input type="number" id="input_function_value" oninput="update_function()" value="1" style="width: 32px">) = <span id="output_function"></span></p>
-		<p>f'(<input type="number" id="input_function_value_derivative" oninput="update_function()" value="1" style="width: 32px">) = <span id="output_function_derivative"></span></p>
-		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that the definition of a derivative is used directly [f(x+h)-f(x)/h]. It is NOT exactly the derivative, so don't expect it to be flawless.</p>
+		<p>f(<input type="number" id="input_function_value" oninput="update_function()" value="1" style="width: 32px">) = <span id="output_function_value"></span></p>
+		<p>f'(x) = <span id="output_function_derivative"></span></p>
+		<p>Actual Derivative (using derivative rules): f'(<input type="number" id="input_function_value_derivative" value="1" style="width: 32px" readonly>) = <span id="output_function_derivative_value"></span></p>
+		<p>Pseudo-Derivative (using [f(x+h)-f(x)/h]): f'(<input type="number" id="input_function_value_derivative_pseudo" value="1" style="width: 32px" readonly>) = <span id="output_function_derivative_value_pseudo"></span></p>
 		
 		<h2>induce an error (temporary function)</h2>
 		<input type="button" onclick="induce_error()" value="evil button of evilness"></input>
@@ -71,11 +74,13 @@
 		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that Javascript's version of an infinitesimal, Number.MIN_VALUE, is used directly in the definition of a derivative. It is NOT exactly the derivative, so don't expect it to be flawless.</p>-->
 		
 		<br><br><br><br><br><br><br><br><br><br>
-		<p>Last Updated: 30 October 2019 @ 01:02 CDT</p>
+		<p>Last Updated: 30 October 2019 @ 18:04 CDT</p>
 	</body>
 	<script>
 		//var f = createFunction('/ * 5 x + ^ x 2 1');
 		//var f = createFunction('+ 1 7.5');
+		//var g = createFunction('8.5');
+		//var z = createFunction('- 5 1');
 		//window.alert(createFunction('^ x 2').derivative().simplify().simplify());
 		//Function.toggle_notation();
 	</script>
