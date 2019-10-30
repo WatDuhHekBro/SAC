@@ -1,16 +1,18 @@
+"use strict";
+
 function update_factors()
 {
 	var num = Number(document.getElementById('input_factors').value);
-	document.getElementById('factors').innerHTML = "";
+	document.getElementById('output_factors').innerHTML = "";
 	var f = factors(num,false);
-	document.getElementById('factors').innerHTML += String(factors(num,true)).replace(/,/g,', ');
+	document.getElementById('output_factors').innerHTML += String(factors(num,true)).replace(/,/g,', ');
 	if(num < 0)
-		document.getElementById('factors').innerHTML += "<br>Apply negatives when necessary.";
-	document.getElementById('factors').innerHTML += "<br><br>";
+		document.getElementById('output_factors').innerHTML += "<br>Apply negatives when necessary.";
+	document.getElementById('output_factors').innerHTML += "<br><br>";
 	for(var i = 0; i < f.length; i += 2)
 	{
-		document.getElementById('factors').innerHTML += f[i]+" × ";
-		document.getElementById('factors').innerHTML += (i+1 === f.length) ? f[i]+"<br>" : f[i+1]+"<br>";
+		document.getElementById('output_factors').innerHTML += f[i]+" × ";
+		document.getElementById('output_factors').innerHTML += (i+1 === f.length) ? f[i]+"<br>" : f[i+1]+"<br>";
 	}
 }
 
@@ -99,7 +101,7 @@ function update_division()
 function update_function()
 {
 	document.getElementById('output_function').innerHTML = createFunction(document.getElementById('input_function').value).solve(Number(document.getElementById('input_function_value').value));
-	document.getElementById('output_function_derivative').innerHTML = createFunction(document.getElementById('input_function').value).derivative(Number(document.getElementById('input_function_value_derivative').value));
+	document.getElementById('output_function_derivative').innerHTML = createFunction(document.getElementById('input_function').value).pseudo_derivative(Number(document.getElementById('input_function_value_derivative').value));
 }
 
 /*function update_notation()

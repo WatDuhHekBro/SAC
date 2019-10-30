@@ -5,8 +5,8 @@
 		<meta charset="utf-8">
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<link rel="stylesheet" type="text/css" href="/style.css">
-		<script src="calc.js" type="text/javascript"></script>
 		<script src="util.js" type="text/javascript"></script>
+		<script src="calc.js" type="text/javascript"></script>
 		<script src="update.js" type="text/javascript"></script>
 	</head>
 	<body>
@@ -17,9 +17,9 @@
 		<div style="background-color:rgb(255, 99, 71);margin:10px 0;">Calculators</div>
 		
 		<h2>High Quality Calculators</h2>
-		<a href="https://www.desmos.com/calculator">Desmos</a><p>A general purpose, algebraic, and graphing calculator.</p>
-		<a href="https://www.derivative-calculator.net/">Derivative Calculator</a><br>
-		<a href="https://www.integral-calculator.com/">Integral Calculator</a>
+		<a href="https://www.desmos.com/calculator">Desmos</a><span> - A general purpose, algebraic, and graphing calculator.</span><br>
+		<a href="https://www.derivative-calculator.net/">Derivative Calculator with Steps</a><br>
+		<a href="https://www.integral-calculator.com/">Integral Calculator with Steps</a>
 		
 		<!-- Maybe add a reset button, everything goes to nothing, not zero (since that makes it inconvenient for phone users). -->
 		
@@ -40,7 +40,7 @@
 		
 		<h2>Factors of a Number</h2>
 		<input type="number" id="input_factors" oninput="update_factors()"></input>
-		<p id="factors">null</p>
+		<p id="output_factors">null</p>
 		
 		<h2>Ratio Calculator</h2>
 		<input type="number" id="input_ratio_a" oninput="update_ratio_base()"></input><input type="number" id="input_ratio_b" oninput="update_ratio_base()"></input>
@@ -71,6 +71,12 @@
 		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that Javascript's version of an infinitesimal, Number.MIN_VALUE, is used directly in the definition of a derivative. It is NOT exactly the derivative, so don't expect it to be flawless.</p>-->
 		
 		<br><br><br><br><br><br><br><br><br><br>
-		<p>Last Updated: 29 October 2019 @ 18:26 CDT</p>
+		<p>Last Updated: 30 October 2019 @ 01:02 CDT</p>
 	</body>
+	<script>
+		//var f = createFunction('/ * 5 x + ^ x 2 1');
+		//var f = createFunction('+ 1 7.5');
+		//window.alert(createFunction('^ x 2').derivative().simplify().simplify());
+		//Function.toggle_notation();
+	</script>
 </html>

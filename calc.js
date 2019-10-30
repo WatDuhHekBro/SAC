@@ -1,3 +1,5 @@
+"use strict";
+
 var operators = "+-*/^o";
 
 class Function
@@ -43,18 +45,180 @@ class Function
 					case '-': return this.left.solve(x) - this.right.solve(x);
 					case '*': return this.left.solve(x) * this.right.solve(x);
 					case '/': return this.left.solve(x) / this.right.solve(x);
-					case '^': return this.left.solve(x) ** this.right.solve(x);
+					case '^': return Math.pow(this.left.solve(x), this.right.solve(x)); // iOS does not support the ** operator
 				}
 			}
 		}
 	}
 	
-	derivative(x)
+	pseudo_derivative(x)
 	{
 		if(typeof x === 'number')
 			return Number(((this.solve(x + 0.00000000001) - this.solve(x)) / 0.00000000001).toFixed(3));
 	}
+	
+	derivative()
+	{
+		if(this.left === null && this.right === null)
+		{
+			if(this.value === 'x')
+				return new Function('1', null, null);
+			else
+				return new Function('0', null, null);
+		}
+		else if(operators.includes(this.value))
+		{
+			switch(this.value)
+			{
+				case '+': return new Function('+', this.left.derivative(), this.right.derivative());
+				case '-': return new Function('-', this.left.derivative(), this.right.derivative());
+				case '*': return new Function('+', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative()));
+				case '/': return new Function('/', new Function('-', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative())), new Function('^', this.right, new Function('2', null, null)));
+				case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1', null, null)));
+				case 'o': return new Function('o', new Function('*', this.left.derivative(), this.right.derivative()), this.right);
+			}
+		}
+	}
+	
+	simplify()
+	{
+		if(operators.includes(this.value))
+		{
+			switch(this.value)
+			{
+				case '+':
+					// General Addition:
+					// c1 + c2, given c =/= x
+					if(this.left.left === null && this.left.right === null && this.left.value !== 'x' && this.left.value !== 'e' && this.left.value !== 'pi' && this.right.left === null && this.right.right === null && this.right.value !== 'x' && this.right.value !== 'e' && this.right.value !== 'pi')
+						return new Function((Number(this.left.value) + Number(this.right.value)).toString(), null, null);
+					// Addition Rule #1A:
+					// 0 + a = a
+					if(this.left.left === null && this.left.right === null && this.left.value === '0')
+						return this.right;
+					// Addition Rule #1B:
+					// a + 0 = a
+					else if(this.right.left === null && this.right.right === null && this.right.value === '0')
+						return this.left;
+					break;
+				
+				case '-':
+					// General Subtraction:
+					// c1 - c2, given c =/= x
+					if(this.left.left === null && this.left.right === null && this.left.value !== 'x' && this.left.value !== 'e' && this.left.value !== 'pi' && this.right.left === null && this.right.right === null && this.right.value !== 'x' && this.right.value !== 'e' && this.right.value !== 'pi')
+						return new Function((Number(this.left.value) - Number(this.right.value)).toString(), null, null);
+					// Subtraction Rule #1:
+					// 0 - a = -1 * a
+					else if(this.left.left === null && this.left.right === null && this.left.value === '0')
+						return new Function('*', new Function('-1', null, null), this.right) ;
+					// Subtraction Rule #2:
+					// a - 0 = a
+					else if(this.right.left === null && this.right.right === null && this.right.value === '0')
+						return this.left;
+					break;
+				
+				case '*':
+					// Multiplication Rule #1A:
+					// 1 * a = a
+					if(this.left.left === null && this.left.right === null && this.left.value === '1')
+						return this.right;
+					// Multiplication Rule #1B:
+					// a * 1 = a
+					else if(this.right.left === null && this.right.right === null && this.right.value === '1')
+						return this.left;
+					// Multiplication Rule #2A:
+					// 0 * a = 0
+					else if(this.left.left === null && this.left.right === null && this.left.value === '0')
+						return new Function('0', null, null);
+					// Multiplication Rule #2B:
+					// a * 0 = 0
+					else if(this.right.left === null && this.right.right === null && this.right.value === '0')
+						return new Function('0', null, null);
+					break;
+				
+				case '/':
+					// Division Rule #1:
+					// a / 1 = a
+					if(this.right.left === null && this.right.right === null && this.right.value === '1')
+						return this.left;
+					// Division Rule #2:
+					// 0 / a = 0
+					else if(this.left.left === null && this.left.right === null && this.left.value === '0')
+						return new Function('0', null, null);
+					// Division Rule #3:
+					// a / 0 = NaN
+					else if(this.right.left === null && this.right.right === null && this.right.value === '0')
+						return NaN;
+					break;
+				
+				case '^':
+					// Exponentiation Rule #1:
+					// a ^ 1 = a
+					if(this.right.left === null && this.right.right === null && this.right.value === '1')
+						return this.left;
+					// Exponentiation Rule #2:
+					// a ^ 0 = 1
+					else if(this.right.left === null && this.right.right === null && this.right.value === '0')
+						return new Function('1', null, null);
+					// Exponentiation Rule #3:
+					// 1 ^ a = 1
+					else if(this.left.left === null && this.left.right === null && this.left.value === '1')
+						return new Function('1', null, null);
+					break;
+			}
+		}
+		
+		if(this.left !== null && this.right !== null)
+			return new Function(this.value, this.left.simplify(), this.right.simplify());
+		else
+			return new Function(this.value, null, null);
+	}
+	
+	static toggle_notation()
+	{
+		Function.notation = !Function.notation;
+	}
+	
+	toString()
+	{
+		var output = "";
+		
+		if(Function.notation)
+		{
+			if(this.left !== null)
+			{
+				if(this.left.left === null && this.left.right === null)
+					output += this.left;
+				else
+					output += "(" + this.left + ")";
+			}
+			if(this.value !== null)
+			{
+				output += this.value;
+			}
+			if(this.right !== null)
+			{
+				if(this.right.left === null && this.right.right === null)
+					output += this.right;
+				else
+					output += "(" + this.right + ")";
+			}
+			
+			output.replace(/ /g,'');
+		}
+		else
+		{
+			if(this.value !== null)
+				output += this.value;
+			if(this.left !== null)
+				output += " " + this.left;
+			if(this.right !== null)
+				output += " " + this.right;
+		}
+		
+		return output;
+	}
 }
+Function.notation = false;
 
 function createFunction(f)
 {
@@ -207,4 +371,9 @@ function calendar_days(month)
 			case 12: return 31; break;
 		}
 	}
+}
+
+function d()
+{
+	return "king ddd";
 }
