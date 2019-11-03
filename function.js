@@ -129,8 +129,8 @@ class Function
 						return new Function((Number(this.left.value) * Number(this.right.value)).toString(), null, null);
 					// General Variable Multiplication A:
 					// c1 * (c2 * x) = (c1*c2)x
-					else if(isConstant(this.left) && ( || ))
-						return ;
+					//else if(isConstant(this.left) && ( || ))
+						//return ;
 					// Multiplication Rule #1A:
 					// 1 * a = a
 					else if(isEndpoint(this.left) && this.left.value === '1')
