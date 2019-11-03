@@ -120,8 +120,8 @@ class Function
 				case '*':
 					// Preference:
 					// 5*x > x*5
-					if()
-						
+					//if()
+						//
 					
 					// General Multiplication:
 					// c1 * c2, given c =/= x
