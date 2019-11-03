@@ -74,7 +74,8 @@ class Function
 				case '-': return new Function('-', this.left.derivative(), this.right.derivative());
 				case '*': return new Function('+', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative()));
 				case '/': return new Function('/', new Function('-', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative())), new Function('^', this.right, new Function('2', null, null)));
-				case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1', null, null)));
+				case '^': return new Function('*', this.right, new Function('^', this.left, new Function('-', this.right, new Function('1', null, null))));
+				//ERRONEOUS - case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1', null, null)));
 				case 'o': return new Function('o', new Function('*', this.left.derivative(), this.right.derivative()), this.right);
 			}
 		}
@@ -117,9 +118,22 @@ class Function
 					break;
 				
 				case '*':
+					// Preference:
+					// 5*x > x*5
+					if()
+						
+					
+					// General Multiplication:
+					// c1 * c2, given c =/= x
+					if(isConstant(this.left) && isConstant(this.right))
+						return new Function((Number(this.left.value) * Number(this.right.value)).toString(), null, null);
+					// General Variable Multiplication A:
+					// c1 * (c2 * x) = (c1*c2)x
+					else if(isConstant(this.left) && ( || ))
+						return ;
 					// Multiplication Rule #1A:
 					// 1 * a = a
-					if(isEndpoint(this.left) && this.left.value === '1')
+					else if(isEndpoint(this.left) && this.left.value === '1')
 						return this.right;
 					// Multiplication Rule #1B:
 					// a * 1 = a
@@ -134,8 +148,15 @@ class Function
 					else if(isEndpoint(this.right) && this.right.value === '0')
 						return new Function('0', null, null);
 					break;
+					// Multiplication Rule #3A:
+					// 5*2x = 10x
+					//else if()
 				
 				case '/':
+					// General Division:
+					// c1 / c2, given c =/= x
+					/*if(isConstant(this.left) && isConstant(this.right))
+						return new Function((Number(this.left.value) / Number(this.right.value)).toString(), null, null);*/
 					// Division Rule #1:
 					// a / 1 = a
 					if(isEndpoint(this.right) && this.right.value === '1')
@@ -197,21 +218,21 @@ class Function
 		
 		if(this.left !== null)
 		{
-			if(this.left.left === null && this.left.right === null)
-				output += this.left;
+			if(isEndpoint(this.left))
+				output += this.left.toStringInfix();
 			else
-				output += "(" + this.left + ")";
+				output += "(" + this.left.toStringInfix() + ")";
 		}
-		if(this.value !== null)
+		if(this.value !== null && this.value !== '*') // Multiplication is the key issue here: 5*(2*x) = 5(2x)
 		{
 			output += this.value;
 		}
 		if(this.right !== null)
 		{
-			if(this.right.left === null && this.right.right === null)
-				output += this.right;
+			if(isEndpoint(this.right))
+				output += this.right.toStringInfix();
 			else
-				output += "(" + this.right + ")";
+				output += "(" + this.right.toStringInfix() + ")";
 		}
 		
 		return output.replace(/ /g,'');
@@ -281,6 +302,7 @@ function createFunction(f)
 function isFunction(f) {return (typeof f === 'object' && f !== null && f.constructor.name === 'Function');}
 function isEndpoint(f) {return (isFunction(f) && f.left === null && f.right === null);}
 function isConstant(f) {return (isFunction(f) && isEndpoint(f) && f.value !== 'x' && f.value !== 'e' && f.value !== 'pi');} // Technically, e and pi are constants, but we're treating them like variables to preserve accuracy.
+function isVariable(f) {return (isFunction(f) && isEndpoint(f) && f.value === 'x');}
 
 /*function infix_prefix(f)
 {
