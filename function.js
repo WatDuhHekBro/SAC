@@ -304,14 +304,30 @@ function isEndpoint(f) {return (isFunction(f) && f.left === null && f.right === 
 function isConstant(f) {return (isFunction(f) && isEndpoint(f) && f.value !== 'x' && f.value !== 'e' && f.value !== 'pi');} // Technically, e and pi are constants, but we're treating them like variables to preserve accuracy.
 function isVariable(f) {return (isFunction(f) && isEndpoint(f) && f.value === 'x');}
 
-/*function infix_prefix(f)
+function infix_prefix(f)
 {
 	// (3x^2+45)/(5x+7/2)
 	// / + * 3 ^ x 2 45 + * 5 x / 7 2
 	
+	// x^2+x+5
+	// + ^ x 2 + x 5
+	
+	// If recursion is going inside to the bottom, then building is going outside to the top. That means that instead of starting off with your core element, build the leaves first.
+	
+	// x^2+x+5
+	// [x^2] --> [^ x 2]
+	// [[x^2]+x] --> [+ [^ x 2] x]
+	// [[[x^2]+x]+5] --> [+ [+ [^ x 2] x] 5]
+	// + + ^ x 2 x 5
+	
+	// Parentheses = Preemptive Measures, ie deciding "val 1" of [val 1][operator][val 2] first.
+	// (3x^2+45)/(5x+7/2)
+	// [? [] []]
+	
 	f = f.replace(/ /g,'');
 	
-	
+	//for(var c of f)
+		//console.log(c);
 	
 	return f;
-}*/
+}

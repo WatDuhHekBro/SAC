@@ -26,6 +26,9 @@ function update_ratio_base()
 		var gcf = GCF(a,b);
 		document.getElementById('input_ratio_c').value = a/gcf;
 		document.getElementById('input_ratio_d').value = b/gcf;
+		document.getElementById('output_ratio_factor').innerHTML = gcf;
+		document.getElementById('output_ratio_fraction').innerHTML = (a/gcf)+'/'+(b/gcf);
+		document.getElementById('output_ratio_decimal').innerHTML = a/b;
 	}
 }
 
@@ -71,7 +74,13 @@ function update_ratio_c()
 		document.getElementById('input_ratio_d').value = 0;
 	}
 	else
+	{
+		var gcf = GCF(a,b);
 		document.getElementById('input_ratio_d').value = b*(c/a);
+		document.getElementById('output_ratio_factor').innerHTML = a/c;
+		document.getElementById('output_ratio_fraction').innerHTML = (a/gcf)+'/'+(b/gcf);
+		document.getElementById('output_ratio_decimal').innerHTML = a/b;
+	}
 }
 
 function update_ratio_d()
@@ -88,7 +97,13 @@ function update_ratio_d()
 		document.getElementById('input_ratio_d').value = 0;
 	}
 	else
+	{
+		var gcf = GCF(a,b);
 		document.getElementById('input_ratio_c').value = a*(d/b);
+		document.getElementById('output_ratio_factor').innerHTML = b/d;
+		document.getElementById('output_ratio_fraction').innerHTML = (a/gcf)+'/'+(b/gcf);
+		document.getElementById('output_ratio_decimal').innerHTML = a/b;
+	}
 }
 
 function update_division()

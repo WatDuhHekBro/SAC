@@ -73,6 +73,9 @@ function leap_year(year)
 		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
+// https://www.markhansen.co.nz/javascript-optional-parameters/
+// https://stackoverflow.com/questions/12797118/how-can-i-declare-optional-function-parameters-in-javascript/12797135
+// Include some leap year thing here, either a boolean executed as the user enters their condition or the year itself, which'll use leap_year() here.
 function calendar_days(month)
 {
 	if(typeof month === 'number')

@@ -25,6 +25,19 @@
 		
 		<!-- Maybe add a reset button, everything goes to nothing, not zero (since that makes it inconvenient for phone users). -->
 		
+		<!-- Also, fix the spacing issue between the header and the descriptor. -->
+		
+		<h2>Custom Functions Field (Experimental)</h2>
+		<!-- Add a button that switches between Infix and Prefix if the user so chooses. -->
+		<p><i>Infix Notation is in progress! Currently uses Prefix Notation for demonstration of other functions.</i></p>
+		<textarea id="input_custom_functions" rows="5" cols="50">f(x) = + 5 x&#013;&#010;g(x) = ^ x 2</textarea><br>
+		<input type="checkbox" id="toggle_prefix" value="prefix" checked>Activate Prefix Mode (Debugging Only)</input>
+		
+		<h2>Use Your Custom Functions Here / Observe Custom Functions</h2>
+		<p>Only "f(x)" mode is supported, not "f" mode.</p>
+		<input type="text" id="input_custom_functions_activate" oninput="update_custom_functions()"></input>
+		<p>Output: <span id="output_custom_functions_activate"></span></p>
+		
 		<h2>Simple Time Unit Conversion (Inaccurate Above Days)</h2>
 		<p>Unfortunately, you can't change between scientific notation, fraction notation, or pure decimal notation yet.</p>
 		<!-- Add a formatter to 3 decimal places eventually, along with the ratios, etc. -->
@@ -48,6 +61,10 @@
 		<input type="number" id="input_ratio_a" oninput="update_ratio_base()"></input><input type="number" id="input_ratio_b" oninput="update_ratio_base()"></input>
 		<br><input type="button" value="=" onclick="update_ratio_base()"></input><br>
 		<input type="number" id="input_ratio_c" oninput="update_ratio_c()"></input><input type="number" id="input_ratio_d" oninput="update_ratio_d()"></input>
+		<!--<br><input type="checkbox" id="toggle_prefix" value="prefix">Activate Pivoted Mode (as opposed to Anchored Mode)</input>-->
+		<p>Dividing Factor: <span id="output_ratio_factor">_____</span></p>
+		<p>Fraction Form: <span id="output_ratio_fraction">_____</span></p>
+		<p>Decimal Form: <span id="output_ratio_decimal">_____</span></p>
 		
 		<h2>Division with Remainders</h2>
 		<p><input type="number" id="input_dividend" oninput="update_division()"></input> ÷ <input type="number" id="input_divisor" oninput="update_division()"></input> =</p><p id="quotient"></p>
@@ -61,9 +78,6 @@
 		<p>Actual Derivative (using derivative rules): f'(<input type="number" id="input_function_value_derivative" value="1" style="width: 32px" readonly>) = <span id="output_function_derivative_value"></span></p>
 		<p>Pseudo-Derivative (using [f(x+h)-f(x)/h]): f'(<input type="number" id="input_function_value_derivative_pseudo" value="1" style="width: 32px" readonly>) = <span id="output_function_derivative_value_pseudo"></span></p>
 		
-		<h2>induce an error (temporary function)</h2>
-		<input type="button" onclick="induce_error()" value="evil button of evilness"></input>
-		
 		<!--<h2>Factoring Calculator</h2>
 		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px">x² + </input>
 		<input id="input_factoring" type="number" oninput="update_factoring()" style="width: 32px">x + </input>
@@ -73,8 +87,26 @@
 		<!--<h2>Properties of a Function (Calculus)</h2>
 		<p>DISCLAIMER: This uses pseudo-derivatives, meaning that Javascript's version of an infinitesimal, Number.MIN_VALUE, is used directly in the definition of a derivative. It is NOT exactly the derivative, so don't expect it to be flawless.</p>-->
 		
+		<!-- Updated -->
+		<h1>The Branch of Time Calculators</h1>
+		<p><i>As of right now, I don't know if there's any way to combine these separate functions into one. And continuing to try and come up with a solution without doing any work first has proven difficult.<br>Obviously, this part is going to look rough and experimental.</i></p>
+		
+		<h2>Relative Hour Displacement (Hours Only)</h2>
+		<p><i>If right now is 11:00, then it should follow that 5 hours later, it would be 16:00, +0 Days. And getting to the same conclusion would be 12:00 plus 4 hours.</i></p>
+		<p>It is <input type="number" id="input_time_hours_start" oninput="update_time_hours()" style="width: 32px"></input> hours right now and I need to go <input type="number" id="input_time_hours_displacement" oninput="update_time_hours()" style="width: 32px"></input> hours ahead (negative numbers will be allowed), therefore, it will be <span id="output_time_hours">_____</span> later.</p>
+		
+		<h2>How Many Days From...</h2>
+		<p>DOES NOT INCLUDE TIME ZONES! <i>If today is December 9, then what day will it be after 7 days? If today is December 9, then how many days will it be until December 16?</i></p>
+		<!-- Note: Although I will later expand to allow for stuff like 9 December 2019, 2019 December 9, or even omit the year assuming it's this year, the core format remains the same: YYYY-MM-DD -->
+		<p>Coming Soon™</p>
+		<p>The starting day is <input type="date" id="input_days_start" oninput="update_days()" value="2019-12-09"></input>. After <input type="number" id="input_days_displacement" oninput="update_days()" style="width: 32px" value="7"></input> days, it will be <input type="date" id="input_days_end" oninput="update_days()" value="2019-12-16"></input>.</p>
+		
+		<h2>Rationalization</h2>
+		<p>AKA Splitting up a radical, I forgot the proper term.</p>
+		<p>√<input type="number" id="input_rationalization" oninput="update_rationalization()" style="width: 32px"></input> = <span id="output_rationalization"></span></p>
+		
 		<br><br><br><br><br><br><br><br><br><br>
-		<p>Last Updated: 3 November 2019 @ 17:29 CDT</p>
+		<p>Last Updated: 9 December 2019 @ 17:06 CST</p>
 	</body>
 	<script>
 		//var f = createFunction('/ * 5 x + ^ x 2 1');
@@ -83,5 +115,139 @@
 		//var z = createFunction('- 5 1');
 		//window.alert(createFunction('^ x 2').derivative().simplify().simplify());
 		//Function.toggle_notation();
+		
+		/* Updated */
+		function update_time_hours()
+		{
+			var start = parseInt(document.getElementById("input_time_hours_start").value);
+			var add = parseInt(document.getElementById("input_time_hours_displacement").value);
+			var end = start + add;
+			var days = 0;
+			if(end >= 24)
+			{
+				days = parseInt(end / 24);
+				end %= 24;
+			}
+			document.getElementById("output_time_hours").innerHTML = end + " hours, +" + days + " days";
+			//console.log(start+" "+add+" "+end+" "+days);
+		}
+		
+		// On second thought, it'd probably be better to have a series of keys and equations, like f(x) in one box and x+5 in another. And of course check the identifier letter "f" and "(x)" later.
+		function custom_functions_matrix()
+		{
+			var elements = document.getElementById('input_custom_functions').value.split('\n');
+			var functions = {};
+			var prefix_mode = document.getElementById('toggle_prefix').checked;
+			
+			if(prefix_mode)
+			{
+				for(var f of elements)
+				{
+					var name = f.slice(0,f.indexOf('=')-1);
+					var equation = createFunction(f.slice(f.indexOf('=')+2));
+					functions[name] = equation;
+				}
+			}
+			else
+			{
+				for(var f of elements)
+				{
+					// Later check if each element is a *valid* function. And obviously type-check. And check if there's only ONE equals sign.
+					f = f.replace(/ /g,'');
+					var name = f.slice(0,f.indexOf('='));
+					var equation = infix_prefix(f.slice(f.indexOf('=')+1));
+					functions[name] = equation;
+				}
+			}
+			
+			return functions;
+		}
+		
+		function update_custom_functions()
+		{
+			var compendium = custom_functions_matrix();
+			var input = document.getElementById('input_custom_functions_activate').value;
+			var output = "";
+			
+			if(input.match(/\w\(x\)/)) // f(x)
+				output = compendium[input].toStringInfix();
+			else if(input.match(/\w\(-*\d(\.*\d+)*\)/g)) // f(-1.5)
+			{
+				var key = input.slice(0,1);
+				var value = Number(input.slice(input.indexOf('(')+1, input.indexOf(')')));
+				output = compendium[key+"(x)"].solve(value);
+			}
+			else if(input.match(/\w\(\[(-*\d(\.*\d+)*,-*\d(\.*\d+)*)(,-*\d(\.*\d+)*)*\]\)/g)) // f([-1.5,-0.5,-0.3]) or f([0,5,1]), meaning f(x) where x goes from 0 to 5 with a step of 1 (default: 1), meaning f(x) is calculated at 0, 1, 2, 3, 4, 5.
+			{
+				var key = input.slice(0,1);
+				var instructions = input.slice(input.indexOf('[')+1, input.indexOf(']')).split(',');
+				var start = Number(instructions[0]);
+				var end = Number(instructions[1]);
+				var step = 1;
+				
+				if(instructions[2] !== undefined)
+					step = Number(instructions[2]);
+				
+				// MAKE SURE TO CHECK IF START, END, AND STEP WILL WORK WITHOUT AN INFINITE LOOP!!!
+				
+				for(var value = start; value <= end; value += step)
+					output += "<br>" + key + "(" + value + ") = " + compendium[key+"(x)"].solve(value);
+			}
+			else if(input.match(/\w'\(x\)/)) // f'(x)
+			{
+				var key = input.replace(/'/g,'');
+				output = compendium[key].derivative().simplified().toStringInfix();
+			}
+			else if(input.match(/\w'\(-*\d(\.*\d+)*\)/g)) // f'(-1.5)
+			{
+				var key = input.slice(0,1);
+				var value = Number(input.slice(input.indexOf('(')+1, input.indexOf(')')));
+				output = compendium[key+"(x)"].derivative().solve(value);
+			}
+			else if(input.match(/\w'\(\[(-*\d(\.*\d+)*,-*\d(\.*\d+)*)(,-*\d(\.*\d+)*)*\]\)/g)) // f'([-1.5,-0.5,-0.3]) or f'([0,5,1]), meaning f'(x) where x goes from 0 to 5 with a step of 1 (default: 1), meaning f'(x) is calculated at 0, 1, 2, 3, 4, 5.
+			{
+				var key = input.slice(0,1);
+				var instructions = input.slice(input.indexOf('[')+1, input.indexOf(']')).split(',');
+				var start = Number(instructions[0]);
+				var end = Number(instructions[1]);
+				var step = 1;
+				
+				if(instructions[2] !== undefined)
+					step = Number(instructions[2]);
+				
+				// MAKE SURE TO CHECK IF START, END, AND STEP WILL WORK WITHOUT AN INFINITE LOOP!!!
+				
+				for(var value = start; value <= end; value += step)
+					output += "<br>" + key + "'(" + value + ") = " + compendium[key+"(x)"].derivative().solve(value);
+			}
+			
+			document.getElementById('output_custom_functions_activate').innerHTML = output;
+		}
+		
+		function update_days()
+		{
+			// input_days_start, input_days_displacement, input_days_end
+		}
+		
+		function update_rationalization()
+		{
+			var radicand = parseInt(document.getElementById('input_rationalization').value);
+			var output = '√';
+			
+			if(Math.sqrt(radicand) % 1 === 0)
+				output += Math.sqrt(radicand);
+			else
+			{
+				for(var n = parseInt(Math.sqrt(radicand)); n >= 2; n--)
+				{
+					if(radicand % Math.pow(n,2) === 0)
+					{
+						output = n + '*' + output + (radicand/Math.pow(n,2));
+					}
+				}
+			}
+			
+			document.getElementById('output_rationalization').innerHTML = output;
+		}
 	</script>
 </html>
