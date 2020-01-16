@@ -1,31 +1,277 @@
 "use strict";
 
-function update_factors()
+function collectFunctions()
 {
-	var num = Number(document.getElementById('input_factors').value);
-	document.getElementById('output_factors').innerHTML = "";
-	var f = factors(num,false);
-	document.getElementById('output_factors').innerHTML += String(factors(num,true)).replace(/,/g,', ');
-	if(num < 0)
-		document.getElementById('output_factors').innerHTML += "<br>Apply negatives when necessary.";
-	document.getElementById('output_factors').innerHTML += "<br><br>";
-	for(var i = 0; i < f.length; i += 2)
+	var table = document.getElementById('functions');
+	var functions = {};
+	
+	for(var i = 0, row; row = table.rows[i]; i++)
 	{
-		document.getElementById('output_factors').innerHTML += f[i]+" × ";
-		document.getElementById('output_factors').innerHTML += (i+1 === f.length) ? f[i]+"<br>" : f[i+1]+"<br>";
+		var key, equation;
+		var prefix_mode = false;
+		
+		for(var j = 0, col; col = row.cells[j]; j++)
+		{
+			if(col.children[0].getAttribute('type') === 'text')
+			{
+				if(j === 0)
+				{
+					var index = col.children[0].value.indexOf('(');
+					
+					if(index !== -1)
+						key = col.children[0].value.slice(0, index);
+					else
+						key = col.children[0].value;
+				}
+				else if(j === 1)
+				{
+					equation = col.children[0].value;
+				}
+			}
+			else if(col.children[0].getAttribute('type') === 'checkbox')
+				prefix_mode = col.children[0].checked;
+		}
+		
+		if(key !== '' && equation !== '')
+		{
+			if(prefix_mode)
+				functions[key] = createFunction(equation);
+			else
+				functions[key] = toPrefix(equation);
+		}
 	}
+	
+	return functions;
 }
 
-function update_ratio_base()
+function evalFunction(input)
 {
-	var a = Number(document.getElementById('input_ratio_a').value);
-	var b = Number(document.getElementById('input_ratio_b').value);
+	/*
+	f(x)
+	f'(x)
+	f''(x)
+	f"(x)
+	d[f(x)]
+	d2[f(x)]
+	f([x,y])
+	f([x,y,z])
+	*/
 	
-	if(a !== 0 && b !== 0)
+	// My methodology here will be analyzing each character as I go through the string. Depending on the character, I'll do different things.
+	
+	/*
+	[Default/Global Mode]
+	\w - 
+	'
+	"
+	( - Enter scope mode.
+	[ - Enter step mode.
+	) - Exit scope mode.
+	] - Exit step mode.
+	
+	[Scope Mode]
+	
+	
+	[Step Mode]
+	Input is either a function or range.
+	
+	...
+	
+	[Return Types]
+	The type of value you get determines what you do with it. Both in displaying HTML and using that value as an input.
+	- f(x) --> String: This won't work with input types, though if you put it in the function output, it'll output the infix version of the equation.
+	- f(2) or 2 --> Number: This is the standard for input types which'll yield similar output in the function output. Additionally, standard numbers that are passed through this function will just pass through unchanged.
+	- f([0,2]) --> Array (Semi-Matrix): The first element is the summation of all the values, in the function output the rest of the elements are used to display each individual calculation. This is an array, where the first element is a number (the sum) and the rest of values are 2 value arrays where the first value is the input (the 2 in f(2)) and the second value is what f(2) equals.
+	- null: In case this fails, null is returned, which'll either display an error or not do anything, depending on what you do with it. For input types, it does nothing as this accounts for any incomplete expression, and for the function output, it displays that there's an error;
+	*/
+	
+	// Temporary Code //
+	let compendium = collectFunctions();
+	let output = null;
+	
+	if(input && input.constructor === Number)
+		return input;
+	else if(input && input.constructor === String)
 	{
-		var gcf = GCF(a,b);
-		document.getElementById('input_ratio_c').value = a/gcf;
-		document.getElementById('input_ratio_d').value = b/gcf;
+		if(!isNaN(Number(input)))
+			return Number(input);
+		else if(input.match(/\w\(x\)/)) // f(x)
+			output = compendium[input.substring(0, input.indexOf('(x)'))].toStringInfix();
+		else if(input.match(/\w\(-*\d(\.*\d+)*\)/g)) // f(-1.5)
+		{
+			var key = input.slice(0,1);
+			var value = Number(input.slice(input.indexOf('(')+1, input.indexOf(')')));
+			output = compendium[key].solve(value);
+		}
+		else if(input.match(/\w\(\[(-*\d(\.*\d+)*,-*\d(\.*\d+)*)(,-*\d(\.*\d+)*)*\]\)/g)) // f([-1.5,-0.5,-0.3]) or f([0,5,1]), meaning f(x) where x goes from 0 to 5 with a step of 1 (default: 1), meaning f(x) is calculated at 0, 1, 2, 3, 4, 5.
+		{
+			var key = input.slice(0,1);
+			var instructions = input.slice(input.indexOf('[')+1, input.indexOf(']')).split(',');
+			var start = Number(instructions[0]);
+			var end = Number(instructions[1]);
+			var step = 1;
+			output = [null];
+			var sum = 0;
+			
+			if(instructions[2] !== undefined)
+				step = Number(instructions[2]);
+			
+			// MAKE SURE TO CHECK IF START, END, AND STEP WILL WORK WITHOUT AN INFINITE LOOP!!!
+			
+			for(var value = start; value <= end; value += step)
+			{
+				output.push([value, compendium[key].solve(value)]);
+				sum += compendium[key].solve(value);
+			}
+			
+			output[0] = sum;
+		}
+		else if(input.match(/\w'\(x\)/)) // f'(x)
+		{
+			var key = input.replace(/'/g,'');
+			output = compendium[key.substring(0, input.indexOf('(x)'))].derivative().simplified().toStringInfix();
+		}
+		else if(input.match(/\w'\(-*\d(\.*\d+)*\)/g)) // f'(-1.5)
+		{
+			var key = input.slice(0,1);
+			var value = Number(input.slice(input.indexOf('(')+1, input.indexOf(')')));
+			output = compendium[key].derivative().solve(value);
+		}
+		else if(input.match(/\w'\(\[(-*\d(\.*\d+)*,-*\d(\.*\d+)*)(,-*\d(\.*\d+)*)*\]\)/g)) // f'([-1.5,-0.5,-0.3]) or f'([0,5,1]), meaning f'(x) where x goes from 0 to 5 with a step of 1 (default: 1), meaning f'(x) is calculated at 0, 1, 2, 3, 4, 5.
+		{
+			var key = input.slice(0,1);
+			var instructions = input.slice(input.indexOf('[')+1, input.indexOf(']')).split(',');
+			var start = Number(instructions[0]);
+			var end = Number(instructions[1]);
+			var step = 1;
+			output = [null];
+			var sum = 0;
+			
+			if(instructions[2] !== undefined)
+				step = Number(instructions[2]);
+			
+			// MAKE SURE TO CHECK IF START, END, AND STEP WILL WORK WITHOUT AN INFINITE LOOP!!!
+			
+			for(var value = start; value <= end; value += step)
+			{
+				output.push([value, compendium[key].derivative().solve(value)]);
+				sum += compendium[key].derivative().solve(value);
+			}
+			
+			output[0] = sum;
+		}
+	}
+	
+	return output;
+}
+
+function update_custom_functions()
+{
+	let input = document.getElementById('input_custom_functions_activate').value;
+	let output = evalFunction(input);
+	document.getElementById('output_custom_functions_activate').innerHTML = output;
+}
+
+function updateFunctionOutput(input)
+{
+	let block = new Block(input.parentNode.parentNode);
+	let value = evalFunction(input.value);
+	let output = 'Not a valid function expression.';
+	
+	if(value !== undefined && value !== null)
+	{
+		output = 'Output: ';
+		
+		if(value.constructor === String || value.constructor === Number)
+			output += value;
+		else if(value.constructor === Array)
+		{
+			output += value[0] + '<br>';
+			
+			for(let i = 1; i < value.length; i++)
+				output += 'f(' + value[i][0] + ') = ' + value[i][1] + '<br>';
+		}
+	}
+	
+	block[1].val(output);
+}
+
+function updateFactors(input)
+{
+	let block = new Block(input.parentNode.parentNode);
+	let num = Number(input.value);
+	let f = factors(num);
+	let output = '';
+	
+	if(num < 0)
+		output += 'Apply negatives where necessary.<br>';
+	
+	for(let i = 0; i < f.length; i += 2)
+	{
+		output += f[i] + ' × ';
+		output += (i+1 === f.length) ? f[i] + '<br>' : f[i+1] + '<br>';
+	}
+	
+	block[1].val(output);
+}
+
+function updateRatio(input, setting)
+{
+	let block = new Block(input.parentNode);
+	let a = block[0];
+	let b = block[1];
+	let c = block[3];
+	let d = block[4];
+	let factor = block[6][0];
+	let fraction = block[7][0];
+	let decimal = block[8][0];
+	let mode = block[5][0].val();
+	let gcf = GCF(a.val(), b.val());
+	
+	// Update Base //
+	if(setting === 0 && a.val() !== 0 && b.val() !== 0)
+	{
+		c.val(a.val() / gcf);
+		d.val(b.val() / gcf);
+		factor.val(gcf);
+		fraction.val((a.val() / gcf) + '/' + (b.val() / gcf));
+		decimal.val(a.val() / b.val());
+	}
+	// Update C //
+	else if(setting === 1)
+	{
+		if(c.val() === 0 || a.val() === 0 || b.val() === 0)
+		{
+			a.val(0);
+			b.val(0);
+			c.val(0);
+			d.val(0);
+		}
+		else
+		{
+			d.val(b.val() * (c.val() / a.val()));
+			factor.val(a.val() / c.val());
+			fraction.val((a.val() / gcf) + '/' + (b.val() / gcf));
+			decimal.val(a.val() / b.val());
+		}
+	}
+	// Update D //
+	else if(setting === 2)
+	{
+		if(d.val() === 0 || a.val() === 0 || b.val() === 0)
+		{
+			a.val(0);
+			b.val(0);
+			c.val(0);
+			d.val(0);
+		}
+		else
+		{
+			c.val(a.val() * (d.val() / b.val()));
+			factor.val(b.val() / d.val());
+			fraction.val((a.val() / gcf) + '/' + (b.val() / gcf));
+			decimal.val(a.val() / b.val());
+		}
 	}
 }
 
@@ -57,206 +303,195 @@ function update_ratio_b()
 		update_ratio_base();
 }*/
 
-function update_ratio_c()
+function updateDivision(input)
 {
-	var a = Number(document.getElementById('input_ratio_a').value);
-	var b = Number(document.getElementById('input_ratio_b').value);
-	var c = Number(document.getElementById('input_ratio_c').value);
+	let block = new Block(input.parentNode.parentNode);
+	let dividend = Math.trunc(block[0][0].val());
+	let divisor = Math.trunc(block[1][0].val());
+	block[2].val(Math.trunc(dividend / divisor) + ' with a remainder of ' + Math.trunc(dividend % divisor));
+}
+
+// If you want to apply this to other conversions, you need to have a better method.
+function updateConvTime(input, setting)
+{
+	let block = new Block(input.parentNode.parentNode);
+	let num = Number(input.value);
+	let nanoseconds = block[0][0];
+	let microseconds = block[1][0];
+	let milliseconds = block[2][0];
+	let seconds = block[3][0];
+	let minutes = block[4][0];
+	let hours = block[5][0];
+	let days = block[6][0];
+	let weeks = block[7][0];
+	let months = block[8][0];
+	let years = block[9][0];
 	
-	if(c === 0 || a === 0 || b === 0)
+	if(isNaN(num))
 	{
-		document.getElementById('input_ratio_a').value = 0;
-		document.getElementById('input_ratio_b').value = 0;
-		document.getElementById('input_ratio_c').value = 0;
-		document.getElementById('input_ratio_d').value = 0;
+		num = 0;
+		input.value = 0;
 	}
-	else
-		document.getElementById('input_ratio_d').value = b*(c/a);
-}
-
-function update_ratio_d()
-{
-	var a = Number(document.getElementById('input_ratio_a').value);
-	var b = Number(document.getElementById('input_ratio_b').value);
-	var d = Number(document.getElementById('input_ratio_d').value);
 	
-	if(d === 0 || a === 0 || b === 0)
-	{
-		document.getElementById('input_ratio_a').value = 0;
-		document.getElementById('input_ratio_b').value = 0;
-		document.getElementById('input_ratio_c').value = 0;
-		document.getElementById('input_ratio_d').value = 0;
-	}
-	else
-		document.getElementById('input_ratio_c').value = a*(d/b);
-}
-
-function update_division()
-{
-	var dividend = parseInt(document.getElementById('input_dividend').value);
-	var divisor = parseInt(document.getElementById('input_divisor').value);
-	document.getElementById('quotient').innerHTML = parseInt(dividend/divisor) + " with a remainder of " + parseInt(dividend%divisor);
-}
-
-function update_function()
-{
-	var f = createFunction(document.getElementById('input_function').value);
-	var g = f.derivative().simplified();
-	var val = getNumber('input_function_value');
-	
-	document.getElementById('output_function_value').innerHTML = f.solve(val);
-	document.getElementById('output_function_derivative').innerHTML = g.toStringInfix();
-	document.getElementById('input_function_value_derivative').value = val;
-	document.getElementById('input_function_value_derivative_pseudo').value = val;
-	document.getElementById('output_function_derivative_value').innerHTML = g.solve(val);
-	document.getElementById('output_function_derivative_value_pseudo').innerHTML = f.pseudo_derivative(val);
-}
-
-/*function update_notation()
-{
-	document.getElementById('output_notation').value = infix_prefix(document.getElementById('input_notation').value);
-}*/
-
-function updateConvTime(setting)
-{
 	if(setting === -3)
 	{
-		var num = Number(document.getElementById('input_nanoseconds').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_nanoseconds').value = 0;}
-		document.getElementById('input_microseconds').value = num/1000;
-		document.getElementById('input_milliseconds').value = num/1000000;
-		document.getElementById('input_seconds').value = num/1000000000;
-		document.getElementById('input_minutes').value = num/60000000000;
-		document.getElementById('input_hours').value = num/3600000000000;
-		document.getElementById('input_days').value = num/86400000000000;
-		document.getElementById('input_weeks').value = num/604800000000000;
-		document.getElementById('input_months').value = num/2592000000000000;
-		document.getElementById('input_years').value = num/31536000000000000;
+		microseconds.val(num/1000);
+		milliseconds.val(num/1000000);
+		seconds.val(num/1000000000);
+		minutes.val(num/60000000000);
+		hours.val(num/3600000000000);
+		days.val(num/86400000000000);
+		weeks.val(num/604800000000000);
+		months.val(num/2592000000000000);
+		years.val(num/31536000000000000);
 	}
 	else if(setting === -2)
 	{
-		var num = Number(document.getElementById('input_microseconds').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_microseconds').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*1000;
-		document.getElementById('input_milliseconds').value = num/1000;
-		document.getElementById('input_seconds').value = num/1000000;
-		document.getElementById('input_minutes').value = num/60000000;
-		document.getElementById('input_hours').value = num/3600000000;
-		document.getElementById('input_days').value = num/86400000000;
-		document.getElementById('input_weeks').value = num/604800000000;
-		document.getElementById('input_months').value = num/2592000000000;
-		document.getElementById('input_years').value = num/31536000000000;
+		nanoseconds.val(num*1000);
+		milliseconds.val(num/1000);
+		seconds.val(num/1000000);
+		minutes.val(num/60000000);
+		hours.val(num/3600000000);
+		days.val(num/86400000000);
+		weeks.val(num/604800000000);
+		months.val(num/2592000000000);
+		years.val(num/31536000000000);
 	}
 	else if(setting === -1)
 	{
-		var num = Number(document.getElementById('input_milliseconds').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_milliseconds').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*1000000;
-		document.getElementById('input_microseconds').value = num*1000;
-		document.getElementById('input_seconds').value = num/1000;
-		document.getElementById('input_minutes').value = num/60000;
-		document.getElementById('input_hours').value = num/3600000;
-		document.getElementById('input_days').value = num/86400000;
-		document.getElementById('input_weeks').value = num/604800000;
-		document.getElementById('input_months').value = num/2592000000;
-		document.getElementById('input_years').value = num/31536000000;
+		nanoseconds.val(num*1000000);
+		microseconds.val(num*1000);
+		seconds.val(num/1000);
+		minutes.val(num/60000);
+		hours.val(num/3600000);
+		days.val(num/86400000);
+		weeks.val(num/604800000);
+		months.val(num/2592000000);
+		years.val(num/31536000000);
 	}
 	else if(setting === 0)
 	{
-		var num = Number(document.getElementById('input_seconds').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_seconds').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*1000000000;
-		document.getElementById('input_microseconds').value = num*1000000;
-		document.getElementById('input_milliseconds').value = num*1000;
-		document.getElementById('input_minutes').value = num/60;
-		document.getElementById('input_hours').value = num/3600;
-		document.getElementById('input_days').value = num/86400;
-		document.getElementById('input_weeks').value = num/604800;
-		document.getElementById('input_months').value = num/2592000;
-		document.getElementById('input_years').value = num/31536000;
+		nanoseconds.val(num*1000000000);
+		microseconds.val(num*1000000);
+		milliseconds.val(num*1000);
+		minutes.val(num/60);
+		hours.val(num/3600);
+		days.val(num/86400);
+		weeks.val(num/604800);
+		months.val(num/2592000);
+		years.val(num/31536000);
 	}
 	else if(setting === 1)
 	{
-		var num = Number(document.getElementById('input_minutes').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_minutes').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*60000000000;
-		document.getElementById('input_microseconds').value = num*60000000;
-		document.getElementById('input_milliseconds').value = num*60000;
-		document.getElementById('input_seconds').value = num*60;
-		document.getElementById('input_hours').value = num/60;
-		document.getElementById('input_days').value = num/1440;
-		document.getElementById('input_weeks').value = num/10080;
-		document.getElementById('input_months').value = num/43200;
-		document.getElementById('input_years').value = num/525600;
+		nanoseconds.val(num*60000000000);
+		microseconds.val(num*60000000);
+		milliseconds.val(num*60000);
+		seconds.val(num*60);
+		hours.val(num/60);
+		days.val(num/1440);
+		weeks.val(num/10080);
+		months.val(num/43200);
+		years.val(num/525600);
 	}
 	else if(setting === 2)
 	{
-		var num = Number(document.getElementById('input_hours').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_hours').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*3600000000000;
-		document.getElementById('input_microseconds').value = num*3600000000;
-		document.getElementById('input_milliseconds').value = num*3600000;
-		document.getElementById('input_seconds').value = num*3600;
-		document.getElementById('input_minutes').value = num*60;
-		document.getElementById('input_days').value = num/24;
-		document.getElementById('input_weeks').value = num/168;
-		document.getElementById('input_months').value = num/720;
-		document.getElementById('input_years').value = num/8760;
+		nanoseconds.val(num*3600000000000);
+		microseconds.val(num*3600000000);
+		milliseconds.val(num*3600000);
+		seconds.val(num*3600);
+		minutes.val(num*60);
+		days.val(num/24);
+		weeks.val(num/168);
+		months.val(num/720);
+		years.val(num/8760);
 	}
 	else if(setting === 3)
 	{
-		var num = Number(document.getElementById('input_days').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_days').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*86400000000000;
-		document.getElementById('input_microseconds').value = num*86400000000;
-		document.getElementById('input_milliseconds').value = num*86400000;
-		document.getElementById('input_seconds').value = num*86400;
-		document.getElementById('input_minutes').value = num*1440;
-		document.getElementById('input_hours').value = num*24;
-		document.getElementById('input_weeks').value = num/7;
-		document.getElementById('input_months').value = num/30;
-		document.getElementById('input_years').value = num/365;
+		nanoseconds.val(num*86400000000000);
+		microseconds.val(num*86400000000);
+		milliseconds.val(num*86400000);
+		seconds.val(num*86400);
+		minutes.val(num*1440);
+		hours.val(num*24);
+		weeks.val(num/7);
+		months.val(num/30);
+		years.val(num/365);
 	}
 	else if(setting === 4)
 	{
-		var num = Number(document.getElementById('input_weeks').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_weeks').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*604800000000000;
-		document.getElementById('input_microseconds').value = num*604800000000;
-		document.getElementById('input_milliseconds').value = num*604800000;
-		document.getElementById('input_seconds').value = num*604800;
-		document.getElementById('input_minutes').value = num*10080;
-		document.getElementById('input_hours').value = num*168;
-		document.getElementById('input_days').value = num*7;
-		document.getElementById('input_months').value = num/(30/7);
-		document.getElementById('input_years').value = num/(365/7);
+		nanoseconds.val(num*604800000000000);
+		microseconds.val(num*604800000000);
+		milliseconds.val(num*604800000);
+		seconds.val(num*604800);
+		minutes.val(num*10080);
+		hours.val(num*168);
+		days.val(num*7);
+		months.val(num/(30/7));
+		years.val(num/(365/7));
 	}
 	else if(setting === 5)
 	{
-		var num = Number(document.getElementById('input_months').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_months').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*2592000000000000;
-		document.getElementById('input_microseconds').value = num*2592000000000;
-		document.getElementById('input_milliseconds').value = num*2592000000;
-		document.getElementById('input_seconds').value = num*2592000;
-		document.getElementById('input_minutes').value = num*43200;
-		document.getElementById('input_hours').value = num*720;
-		document.getElementById('input_days').value = num*30;
-		document.getElementById('input_weeks').value = num*(30/7);
-		document.getElementById('input_years').value = num/(365/30);
+		nanoseconds.val(num*2592000000000000);
+		microseconds.val(num*2592000000000);
+		milliseconds.val(num*2592000000);
+		seconds.val(num*2592000);
+		minutes.val(num*43200);
+		hours.val(num*720);
+		days.val(num*30);
+		weeks.val(num*(30/7));
+		years.val(num/(365/30));
 	}
 	else if(setting === 6)
 	{
-		var num = Number(document.getElementById('input_years').value);
-		if(isNaN(num)) {num = 0; document.getElementById('input_years').value = 0;}
-		document.getElementById('input_nanoseconds').value = num*31536000000000000;
-		document.getElementById('input_microseconds').value = num*31536000000000;
-		document.getElementById('input_milliseconds').value = num*31536000000;
-		document.getElementById('input_seconds').value = num*31536000;
-		document.getElementById('input_minutes').value = num*525600;
-		document.getElementById('input_hours').value = num*8760;
-		document.getElementById('input_days').value = num*365;
-		document.getElementById('input_weeks').value = num*(365/7);
-		document.getElementById('input_months').value = num*(365/30);
+		nanoseconds.val(num*31536000000000000);
+		microseconds.val(num*31536000000000);
+		milliseconds.val(num*31536000000);
+		seconds.val(num*31536000);
+		minutes.val(num*525600);
+		hours.val(num*8760);
+		days.val(num*365);
+		weeks.val(num*(365/7));
+		months.val(num*(365/30));
 	}
+}
+
+// Note: Breaks down when the input is 5.
+function updateRationalization(input)
+{
+	let block = new Block(input.parentNode.parentNode);
+	let radicand = Math.trunc(input.value);
+	let output = '√';
+	
+	if(Math.sqrt(radicand) % 1 === 0)
+		output += Math.sqrt(radicand);
+	else
+	{
+		for(let n = parseInt(Math.sqrt(radicand)); n >= 2; n--)
+		{
+			if(radicand % Math.pow(n,2) === 0)
+				output = n + '*' + output + (radicand / Math.pow(n,2));
+		}
+	}
+	
+	block[1].val(output);
+}
+
+function update_time_hours()
+{
+	var start = parseInt(document.getElementById("input_time_hours_start").value);
+	var add = parseInt(document.getElementById("input_time_hours_displacement").value);
+	var end = start + add;
+	var days = 0;
+	if(end >= 24)
+	{
+		days = parseInt(end / 24);
+		end %= 24;
+	}
+	document.getElementById("output_time_hours").innerHTML = end + " hours, +" + days + " days";
+	//console.log(start+" "+add+" "+end+" "+days);
+}
+
+function update_days()
+{
+	// input_days_start, input_days_displacement, input_days_end
 }

@@ -1,22 +1,16 @@
 "use strict";
 
-function factors(num,sort)
+function factors(num, sort = false)
 {
 	if(typeof num === 'number' && num % 1 === 0 && typeof sort === 'boolean')
 	{
 		if(num < 0)
-		{
 			num = -num;
-		}
 		
 		if(num === 0)
-		{
 			return [0];
-		}
 		else if(num === 1)
-		{
 			return [1];
-		}
 		else
 		{
 			var factors = [1,num];
@@ -38,7 +32,7 @@ function factors(num,sort)
 	}
 }
 
-function GCF(a,b)
+function GCF(a, b)
 {
 	if(typeof a === 'number' && typeof b === 'number' && a % 1 === 0 && b % 1 === 0)
 	{
@@ -48,8 +42,8 @@ function GCF(a,b)
 			return -1;
 		else
 		{
-			var fa = factors(a,true);
-			var fb = factors(b,true);
+			var fa = factors(a, true);
+			var fb = factors(b, true);
 			
 			if(fb.length < fa.length)
 			{
@@ -73,6 +67,7 @@ function leap_year(year)
 		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
+// Include some leap year thing here, either a boolean executed as the user enters their condition or the year itself, which'll use leap_year() here.
 function calendar_days(month)
 {
 	if(typeof month === 'number')

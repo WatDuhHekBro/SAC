@@ -1,10 +1,8 @@
 "use strict";
 
-var operators = "+-*/^o";
-
 class Function
 {
-	constructor(v,l,r)
+	constructor(v, l, r)
 	{
 		if(typeof v === 'string')
 			this.value = v;
@@ -37,7 +35,7 @@ class Function
 				else
 					return Number(this.value);
 			}
-			else if(operators.includes(this.value))
+			else if(isOperator(this.value))
 			{
 				switch(this.value)
 				{
@@ -62,20 +60,20 @@ class Function
 		if(isEndpoint(this))
 		{
 			if(this.value === 'x')
-				return new Function('1', null, null);
+				return new Function('1');
 			else
-				return new Function('0', null, null);
+				return new Function('0');
 		}
-		else if(operators.includes(this.value))
+		else if(isOperator(this.value))
 		{
 			switch(this.value)
 			{
 				case '+': return new Function('+', this.left.derivative(), this.right.derivative());
 				case '-': return new Function('-', this.left.derivative(), this.right.derivative());
 				case '*': return new Function('+', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative()));
-				case '/': return new Function('/', new Function('-', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative())), new Function('^', this.right, new Function('2', null, null)));
-				case '^': return new Function('*', this.right, new Function('^', this.left, new Function('-', this.right, new Function('1', null, null))));
-				//ERRONEOUS - case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1', null, null)));
+				case '/': return new Function('/', new Function('-', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative())), new Function('^', this.right, new Function('2')));
+				case '^': return new Function('*', this.right, new Function('^', this.left, new Function('-', this.right, new Function('1'))));
+				//ERRONEOUS - case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1')));
 				case 'o': return new Function('o', new Function('*', this.left.derivative(), this.right.derivative()), this.right);
 			}
 		}
@@ -83,7 +81,7 @@ class Function
 	
 	simplify()
 	{
-		if(operators.includes(this.value))
+		if(isOperator(this.value))
 		{
 			switch(this.value)
 			{
@@ -91,7 +89,7 @@ class Function
 					// General Addition:
 					// c1 + c2, given c =/= x
 					if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) + Number(this.right.value)).toString(), null, null);
+						return new Function((Number(this.left.value) + Number(this.right.value)).toString());
 					// Addition Rule #1A:
 					// 0 + a = a
 					if(isEndpoint(this.left) && this.left.value === '0')
@@ -106,11 +104,11 @@ class Function
 					// General Subtraction:
 					// c1 - c2, given c =/= x
 					if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) - Number(this.right.value)).toString(), null, null);
+						return new Function((Number(this.left.value) - Number(this.right.value)).toString());
 					// Subtraction Rule #1:
 					// 0 - a = -1 * a
 					else if(isEndpoint(this.left) && this.left.value === '0')
-						return new Function('*', new Function('-1', null, null), this.right) ;
+						return new Function('*', new Function('-1'), this.right) ;
 					// Subtraction Rule #2:
 					// a - 0 = a
 					else if(isEndpoint(this.right) && this.right.value === '0')
@@ -126,7 +124,7 @@ class Function
 					// General Multiplication:
 					// c1 * c2, given c =/= x
 					if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) * Number(this.right.value)).toString(), null, null);
+						return new Function((Number(this.left.value) * Number(this.right.value)).toString());
 					// General Variable Multiplication A:
 					// c1 * (c2 * x) = (c1*c2)x
 					//else if(isConstant(this.left) && ( || ))
@@ -142,11 +140,11 @@ class Function
 					// Multiplication Rule #2A:
 					// 0 * a = 0
 					else if(isEndpoint(this.left) && this.left.value === '0')
-						return new Function('0', null, null);
+						return new Function('0');
 					// Multiplication Rule #2B:
 					// a * 0 = 0
 					else if(isEndpoint(this.right) && this.right.value === '0')
-						return new Function('0', null, null);
+						return new Function('0');
 					break;
 					// Multiplication Rule #3A:
 					// 5*2x = 10x
@@ -164,7 +162,7 @@ class Function
 					// Division Rule #2:
 					// 0 / a = 0
 					else if(isEndpoint(this.left) && this.left.value === '0')
-						return new Function('0', null, null);
+						return new Function('0');
 					// Division Rule #3:
 					// a / 0 = NaN
 					else if(isEndpoint(this.right) && this.right.value === '0')
@@ -179,11 +177,11 @@ class Function
 					// Exponentiation Rule #2:
 					// a ^ 0 = 1
 					else if(isEndpoint(this.right) && this.right.value === '0')
-						return new Function('1', null, null);
+						return new Function('1');
 					// Exponentiation Rule #3:
 					// 1 ^ a = 1
 					else if(isEndpoint(this.left) && this.left.value === '1')
-						return new Function('1', null, null);
+						return new Function('1');
 					break;
 			}
 		}
@@ -191,7 +189,7 @@ class Function
 		if(!isEndpoint(this))
 			return new Function(this.value, this.left.simplify(), this.right.simplify());
 		else
-			return new Function(this.value, null, null);
+			return new Function(this.value);
 	}
 	
 	simplified()
@@ -259,11 +257,11 @@ function createFunction(f)
 		^ x 2
 		0 1 2
 		V L R
-
+		
 		* 5 ^ x 2
 		0 1 2 3 4
 		V L R R R
-
+		
 		* + 5 x ^ x 2
 		0 1 2 3 4 5 6
 		V L L L R R R
@@ -271,7 +269,7 @@ function createFunction(f)
 		* + / 5 2 x ^ x 2
 		0 1 2 3 4 5 6 7 8
 		V L L L L L R R R
-
+		
 		So what can we conclude? After an operator, there is a minimum of 2 spaces forward in its domain. If there's an operator, add 2 more spaces (assuming you format the input correctly). Just simply count which spaces are for the left function and which spaces are for the right function. For the purposes of simplicity, there'll be a separator located at the first space of R. That'll serve as the cut-off point from L and the start of R.
 	*/
 	
@@ -280,13 +278,13 @@ function createFunction(f)
 	
 	if(typeof f === 'object' && f !== null && f.constructor.name === 'Array')
 	{
-		if(operators.includes(f[0]))
+		if(isOperator(f[0]))
 		{
 			var separator = 2;
 			
 			for(var i = 1; i < separator; i++)
 			{
-				if(operators.includes(f[i]))
+				if(isOperator(f[i]))
 					separator += 2;
 			}
 			
@@ -294,24 +292,61 @@ function createFunction(f)
 		}
 		else
 		{
-			return new Function(f[0], null, null);
+			return new Function(f[0]);
 		}
 	}
 }
 
-function isFunction(f) {return (typeof f === 'object' && f !== null && f.constructor.name === 'Function');}
-function isEndpoint(f) {return (isFunction(f) && f.left === null && f.right === null);}
-function isConstant(f) {return (isFunction(f) && isEndpoint(f) && f.value !== 'x' && f.value !== 'e' && f.value !== 'pi');} // Technically, e and pi are constants, but we're treating them like variables to preserve accuracy.
-function isVariable(f) {return (isFunction(f) && isEndpoint(f) && f.value === 'x');}
+function isFunction(f) {return f !== undefined && f !== null && f.constructor === Function;}
+function isEndpoint(f) {return isFunction(f) && f.left === null && f.right === null;}
+function isConstant(f) {return isFunction(f) && isEndpoint(f) && f.value !== 'x' && f.value !== 'e' && f.value !== 'pi';} // Technically, e and pi are constants, but we're treating them like variables to preserve accuracy.
+function isVariable(f) {return isFunction(f) && isEndpoint(f) && f.value === 'x';}
+function isOperator(v) {return v !== undefined && '+-*/^o'.includes(v);}
 
-/*function infix_prefix(f)
+function toPrefix(f)
 {
+	// Recursive String Return Function
+	// ********************************
+	// (3x^2+45)/(5x+7/2)
+	// / (3x^2+45) (5x+7/2)
+	// / + 3x^2 45 (5x+7/2)
+	// / + * 3 x^2 45 (5x+7/2)
+	// / + * 3 ^ x 2 45 (5x+7/2)
+	// / + * 3 ^ x 2 45 + 5x 7/2
+	// / + * 3 ^ x 2 45 + * 5 x 7/2
+	// / + * 3 ^ x 2 45 + * 5 x / 7 2
+	
+	if(typeof f === 'string')
+	{
+		f = f.replace(/ /g,'');
+		
+		
+		
+		return f;
+	}
+	
 	// (3x^2+45)/(5x+7/2)
 	// / + * 3 ^ x 2 45 + * 5 x / 7 2
 	
+	// x^2+x+5
+	// + ^ x 2 + x 5
+	
+	// If recursion is going inside to the bottom, then building is going outside to the top. That means that instead of starting off with your core element, build the leaves first.
+	
+	// x^2+x+5
+	// [x^2] --> [^ x 2]
+	// [[x^2]+x] --> [+ [^ x 2] x]
+	// [[[x^2]+x]+5] --> [+ [+ [^ x 2] x] 5]
+	// + + ^ x 2 x 5
+	
+	// Parentheses = Preemptive Measures, ie deciding "val 1" of [val 1][operator][val 2] first.
+	// (3x^2+45)/(5x+7/2)
+	// [? [] []]
+	
 	f = f.replace(/ /g,'');
 	
-	
+	//for(var c of f)
+		//console.log(c);
 	
 	return f;
-}*/
+}
