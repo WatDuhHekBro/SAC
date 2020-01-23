@@ -6,15 +6,16 @@
 		<link rel="icon" type="image/x-icon" href="favicon.ico">
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<script src="util.js"></script>
-		<script src="function.js"></script>
 		<script src="calc.js"></script>
+		<script src="function.js"></script>
+		<script src="time.js"></script>
 		<script src="update.js"></script>
 	</head>
 	<body>
 		<h1>The Swiss Army Calculator</h1>
 		<p>Made by WatDuhHekBro</p>
 		<p>DISCLAIMER: This site is not affiliated with the Swiss Army.</p>
-		<p>Last Updated: January 16, 2020 @ 02:22 CST</p>
+		<p>Last Updated: January 23, 2020 @ 11:15 CST</p>
 		<div id="error_header" class="bar" hidden>Errors</div>
 		<span id="errors"></span>
 		<div class="bar">Calculators</div>
@@ -28,29 +29,11 @@
 		<!-- Also, fix the spacing issue between the header and the descriptor. -->
 		
 		<h2>User-Defined Functions</h2>
-		<!-- Add a button that switches between Infix and Prefix if the user so chooses. -->
 		<!-- Also turn a row green/red depending on if the function was successful. Also show a LaTeX version of the equation. -->
 		<p><i>Infix Notation is in progress! Currently uses Prefix Notation for demonstration of other functions.</i></p>
 		<p>When in doubt, add more parentheses.</p>
-		<table id="functions" align="center">
-			<tr>
-				<td><input type="text" class="small" value="f(x)"><span> = </span></td>
-				<td><input type="text" value="+ 5 x"></td>
-				<td><input type="checkbox" checked>Prefix Equation</td>
-			</tr>
-			<tr>
-				<td><input type="text" class="small" value="g"><span> = </span></td>
-				<td><input type="text" value="^ x 2"></td>
-				<td><input type="checkbox" checked>Prefix Equation</td>
-			</tr>
-			<tr>
-				<td><input type="text" class="small"><span> = </span></td>
-				<td><input type="text"></td>
-				<td><input type="checkbox">Prefix Equation</td>
-			</tr>
-		</table>
-		<input type="button" onclick="addFunction()" value="+">
-		<input type="button" onclick="removeFunction()" value="-">
+		<table id="functions" align="center"></table>
+		<input type="button" onclick="addRow()" value="Add">
 		
 		<h2>Function Output</h2>
 		<div>
@@ -77,15 +60,15 @@
 		
 		<h2>Factors of a Number</h2>
 		<div>
-			<div><input type="number" oninput="updateFactors(this)"></div>
+			<div><input type="text" oninput="updateFactors(this)" placeholder="No decimals"></div>
 			<span></span>
 		</div>
 		
 		<h2>Ratio Calculator</h2>
 		<div>
-			<input type="number" oninput="updateRatio(this,0)"><input type="number" oninput="updateRatio(this,0)">
-			<div><input type="button" value="=" onclick="updateRatio(this.parentNode,0)"></div>
 			<input type="number" oninput="updateRatio(this,1)"><input type="number" oninput="updateRatio(this,2)">
+			<div><input type="button" value="=" onclick="updateRatio(this.parentNode,0)"></div>
+			<input type="number" oninput="updateRatio(this,3)"><input type="number" oninput="updateRatio(this,4)">
 			<div><input type="checkbox">Activate Pivoted Mode (as opposed to Anchored Mode)</div>
 			<div>Dividing Factor: <span></span></div>
 			<div>Fraction Form: <span></span></div>
@@ -127,11 +110,11 @@
 		<!-- Note: Although I will later expand to allow for stuff like 9 December 2019, 2019 December 9, or even omit the year assuming it's this year, the core format remains the same: YYYY-MM-DD -->
 		<p>Coming Soon™</p>
 		<p>The starting day is <input type="date" id="input_days_start" oninput="update_days()" value="2019-12-09">. After <input type="number" id="input_days_displacement" oninput="update_days()" class="small" value="7"> days, it will be <input type="date" id="input_days_end" oninput="update_days()" value="2019-12-16">.</p>
+		
+		<script>
+			const ERROR_HEADER = document.getElementById("error_header");
+			const ERROR_MESSAGES = document.getElementById("errors");
+			const FUNCTIONS = document.getElementById("functions");
+		</script>
 	</body>
-	<script>
-		//var f = createFunction('/ * 5 x + ^ x 2 1');
-		//var f = createFunction('+ 1 7.5');
-		//var g = createFunction('8.5');
-		//var z = createFunction('- 5 1');
-	</script>
 </html>

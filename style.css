@@ -9,6 +9,40 @@ input
 	text-align: center;
 }
 
+table
+{
+	border: 1px solid black;
+	border-collapse: collapse;
+}
+
+tr
+{
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+	border-collapse: collapse;
+}
+
+.small
+{
+	width: 32px;
+}
+
+.bar
+{
+	background-color: rgb(255,99,71);
+	margin: 10px 0;
+}
+
+.valid
+{
+	background-color: green;
+}
+
+.invalid
+{
+	background-color: red;
+}
+
 .error
 {
 	color: red;
@@ -21,17 +55,6 @@ input
 	color: grey;
 	font-family: verdana;
 	font-size: 16px;
-}
-
-.small
-{
-	width: 32px;
-}
-
-.bar
-{
-	background-color: rgb(255,99,71);
-	margin: 10px 0;
 }
 
 /* This code block is from antonj's answer to https://stackoverflow.com/questions/3790935/can-i-hide-the-html5-number-input-s-spin-box */

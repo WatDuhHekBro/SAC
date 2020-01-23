@@ -1,182 +1,10 @@
 "use strict";
 
-function collectFunctions()
-{
-	var table = document.getElementById('functions');
-	var functions = {};
-	
-	for(var i = 0, row; row = table.rows[i]; i++)
-	{
-		var key, equation;
-		var prefix_mode = false;
-		
-		for(var j = 0, col; col = row.cells[j]; j++)
-		{
-			if(col.children[0].getAttribute('type') === 'text')
-			{
-				if(j === 0)
-				{
-					var index = col.children[0].value.indexOf('(');
-					
-					if(index !== -1)
-						key = col.children[0].value.slice(0, index);
-					else
-						key = col.children[0].value;
-				}
-				else if(j === 1)
-				{
-					equation = col.children[0].value;
-				}
-			}
-			else if(col.children[0].getAttribute('type') === 'checkbox')
-				prefix_mode = col.children[0].checked;
-		}
-		
-		if(key !== '' && equation !== '')
-		{
-			if(prefix_mode)
-				functions[key] = createFunction(equation);
-			else
-				functions[key] = toPrefix(equation);
-		}
-	}
-	
-	return functions;
-}
-
-function evalFunction(input)
-{
-	/*
-	f(x)
-	f'(x)
-	f''(x)
-	f"(x)
-	d[f(x)]
-	d2[f(x)]
-	f([x,y])
-	f([x,y,z])
-	*/
-	
-	// My methodology here will be analyzing each character as I go through the string. Depending on the character, I'll do different things.
-	
-	/*
-	[Default/Global Mode]
-	\w - 
-	'
-	"
-	( - Enter scope mode.
-	[ - Enter step mode.
-	) - Exit scope mode.
-	] - Exit step mode.
-	
-	[Scope Mode]
-	
-	
-	[Step Mode]
-	Input is either a function or range.
-	
-	...
-	
-	[Return Types]
-	The type of value you get determines what you do with it. Both in displaying HTML and using that value as an input.
-	- f(x) --> String: This won't work with input types, though if you put it in the function output, it'll output the infix version of the equation.
-	- f(2) or 2 --> Number: This is the standard for input types which'll yield similar output in the function output. Additionally, standard numbers that are passed through this function will just pass through unchanged.
-	- f([0,2]) --> Array (Semi-Matrix): The first element is the summation of all the values, in the function output the rest of the elements are used to display each individual calculation. This is an array, where the first element is a number (the sum) and the rest of values are 2 value arrays where the first value is the input (the 2 in f(2)) and the second value is what f(2) equals.
-	- null: In case this fails, null is returned, which'll either display an error or not do anything, depending on what you do with it. For input types, it does nothing as this accounts for any incomplete expression, and for the function output, it displays that there's an error;
-	*/
-	
-	// Temporary Code //
-	let compendium = collectFunctions();
-	let output = null;
-	
-	if(input && input.constructor === Number)
-		return input;
-	else if(input && input.constructor === String)
-	{
-		if(!isNaN(Number(input)))
-			return Number(input);
-		else if(input.match(/\w\(x\)/)) // f(x)
-			output = compendium[input.substring(0, input.indexOf('(x)'))].toStringInfix();
-		else if(input.match(/\w\(-*\d(\.*\d+)*\)/g)) // f(-1.5)
-		{
-			var key = input.slice(0,1);
-			var value = Number(input.slice(input.indexOf('(')+1, input.indexOf(')')));
-			output = compendium[key].solve(value);
-		}
-		else if(input.match(/\w\(\[(-*\d(\.*\d+)*,-*\d(\.*\d+)*)(,-*\d(\.*\d+)*)*\]\)/g)) // f([-1.5,-0.5,-0.3]) or f([0,5,1]), meaning f(x) where x goes from 0 to 5 with a step of 1 (default: 1), meaning f(x) is calculated at 0, 1, 2, 3, 4, 5.
-		{
-			var key = input.slice(0,1);
-			var instructions = input.slice(input.indexOf('[')+1, input.indexOf(']')).split(',');
-			var start = Number(instructions[0]);
-			var end = Number(instructions[1]);
-			var step = 1;
-			output = [null];
-			var sum = 0;
-			
-			if(instructions[2] !== undefined)
-				step = Number(instructions[2]);
-			
-			// MAKE SURE TO CHECK IF START, END, AND STEP WILL WORK WITHOUT AN INFINITE LOOP!!!
-			
-			for(var value = start; value <= end; value += step)
-			{
-				output.push([value, compendium[key].solve(value)]);
-				sum += compendium[key].solve(value);
-			}
-			
-			output[0] = sum;
-		}
-		else if(input.match(/\w'\(x\)/)) // f'(x)
-		{
-			var key = input.replace(/'/g,'');
-			output = compendium[key.substring(0, input.indexOf('(x)'))].derivative().simplified().toStringInfix();
-		}
-		else if(input.match(/\w'\(-*\d(\.*\d+)*\)/g)) // f'(-1.5)
-		{
-			var key = input.slice(0,1);
-			var value = Number(input.slice(input.indexOf('(')+1, input.indexOf(')')));
-			output = compendium[key].derivative().solve(value);
-		}
-		else if(input.match(/\w'\(\[(-*\d(\.*\d+)*,-*\d(\.*\d+)*)(,-*\d(\.*\d+)*)*\]\)/g)) // f'([-1.5,-0.5,-0.3]) or f'([0,5,1]), meaning f'(x) where x goes from 0 to 5 with a step of 1 (default: 1), meaning f'(x) is calculated at 0, 1, 2, 3, 4, 5.
-		{
-			var key = input.slice(0,1);
-			var instructions = input.slice(input.indexOf('[')+1, input.indexOf(']')).split(',');
-			var start = Number(instructions[0]);
-			var end = Number(instructions[1]);
-			var step = 1;
-			output = [null];
-			var sum = 0;
-			
-			if(instructions[2] !== undefined)
-				step = Number(instructions[2]);
-			
-			// MAKE SURE TO CHECK IF START, END, AND STEP WILL WORK WITHOUT AN INFINITE LOOP!!!
-			
-			for(var value = start; value <= end; value += step)
-			{
-				output.push([value, compendium[key].derivative().solve(value)]);
-				sum += compendium[key].derivative().solve(value);
-			}
-			
-			output[0] = sum;
-		}
-	}
-	
-	return output;
-}
-
-function update_custom_functions()
-{
-	let input = document.getElementById('input_custom_functions_activate').value;
-	let output = evalFunction(input);
-	document.getElementById('output_custom_functions_activate').innerHTML = output;
-}
-
 function updateFunctionOutput(input)
 {
-	let block = new Block(input.parentNode.parentNode);
-	let value = evalFunction(input.value);
-	let output = 'Not a valid function expression.';
+	let block = new Block(input.parentNode.parentNode),
+		value = evalFunction(input.value),
+		output = 'Not a valid function expression.';
 	
 	if(value !== undefined && value !== null)
 	{
@@ -198,49 +26,69 @@ function updateFunctionOutput(input)
 
 function updateFactors(input)
 {
-	let block = new Block(input.parentNode.parentNode);
-	let num = Number(input.value);
-	let f = factors(num);
-	let output = '';
+	let block = new Block(input.parentNode.parentNode),
+		num = evalFunction(input.value),
+		output = '';
 	
-	if(num < 0)
-		output += 'Apply negatives where necessary.<br>';
-	
-	for(let i = 0; i < f.length; i += 2)
+	if(num && num.constructor === Number)
 	{
-		output += f[i] + ' × ';
-		output += (i+1 === f.length) ? f[i] + '<br>' : f[i+1] + '<br>';
+		num = Math.trunc(num);
+		let f = factors(num);
+		
+		if(num < 0)
+			output += 'Apply negatives where necessary.<br>';
+		
+		for(let i = 0; i < f.length; i += 2)
+		{
+			output += f[i] + ' × ';
+			output += (i+1 === f.length) ? f[i] + '<br>' : f[i+1] + '<br>';
+		}
 	}
+	else
+		output = 'Input must be a number!';
 	
 	block[1].val(output);
 }
 
 function updateRatio(input, setting)
 {
-	let block = new Block(input.parentNode);
-	let a = block[0];
-	let b = block[1];
-	let c = block[3];
-	let d = block[4];
-	let factor = block[6][0];
-	let fraction = block[7][0];
-	let decimal = block[8][0];
-	let mode = block[5][0].val();
-	let gcf = GCF(a.val(), b.val());
+	let block = new Block(input.parentNode),
+		a = block[0],
+		b = block[1],
+		c = block[3],
+		d = block[4],
+		av = a.val(),
+		bv = b.val(),
+		cv = c.val(),
+		dv = d.val(),
+		factor = block[6][0],
+		fraction = block[7][0],
+		decimal = block[8][0],
+		mode = block[5][0].val(),
+		gcf = GCF(av, bv);
 	
+	if(setting === 1 || setting === 2)
+		setting = mode ? setting : 0;
+	
+	// Update A (Pivot Mode) //
+	if(setting === 1 && cv !== 0 && dv !== 0)
+		c.val(av*dv/bv);
+	// Update B (Pivot Mode) //
+	else if(setting === 2 && cv !== 0 && dv !== 0)
+		d.val(av*cv/bv);
 	// Update Base //
-	if(setting === 0 && a.val() !== 0 && b.val() !== 0)
+	else if(setting === 0 && av !== 0 && bv !== 0)
 	{
-		c.val(a.val() / gcf);
-		d.val(b.val() / gcf);
+		c.val(av/gcf);
+		d.val(bv/gcf);
 		factor.val(gcf);
-		fraction.val((a.val() / gcf) + '/' + (b.val() / gcf));
-		decimal.val(a.val() / b.val());
+		fraction.val((av/gcf) + '/' + (bv/gcf));
+		decimal.val(av/bv);
 	}
 	// Update C //
-	else if(setting === 1)
+	else if(setting === 3)
 	{
-		if(c.val() === 0 || a.val() === 0 || b.val() === 0)
+		if(cv === 0 || av === 0 || bv === 0)
 		{
 			a.val(0);
 			b.val(0);
@@ -249,16 +97,16 @@ function updateRatio(input, setting)
 		}
 		else
 		{
-			d.val(b.val() * (c.val() / a.val()));
-			factor.val(a.val() / c.val());
-			fraction.val((a.val() / gcf) + '/' + (b.val() / gcf));
-			decimal.val(a.val() / b.val());
+			d.val(bv*(cv/av));
+			factor.val(av/cv);
+			fraction.val((av/gcf) + '/' + (bv/gcf));
+			decimal.val(av/bv);
 		}
 	}
 	// Update D //
-	else if(setting === 2)
+	else if(setting === 4)
 	{
-		if(d.val() === 0 || a.val() === 0 || b.val() === 0)
+		if(dv === 0 || av === 0 || bv === 0)
 		{
 			a.val(0);
 			b.val(0);
@@ -267,10 +115,10 @@ function updateRatio(input, setting)
 		}
 		else
 		{
-			c.val(a.val() * (d.val() / b.val()));
-			factor.val(b.val() / d.val());
-			fraction.val((a.val() / gcf) + '/' + (b.val() / gcf));
-			decimal.val(a.val() / b.val());
+			c.val(av*(dv/bv));
+			factor.val(bv/dv);
+			fraction.val((av/gcf) + '/' + (bv/gcf));
+			decimal.val(av/bv);
 		}
 	}
 }
@@ -305,27 +153,27 @@ function update_ratio_b()
 
 function updateDivision(input)
 {
-	let block = new Block(input.parentNode.parentNode);
-	let dividend = Math.trunc(block[0][0].val());
-	let divisor = Math.trunc(block[1][0].val());
+	let block = new Block(input.parentNode.parentNode),
+		dividend = Math.trunc(block[0][0].val()),
+		divisor = Math.trunc(block[1][0].val());
 	block[2].val(Math.trunc(dividend / divisor) + ' with a remainder of ' + Math.trunc(dividend % divisor));
 }
 
 // If you want to apply this to other conversions, you need to have a better method.
 function updateConvTime(input, setting)
 {
-	let block = new Block(input.parentNode.parentNode);
-	let num = Number(input.value);
-	let nanoseconds = block[0][0];
-	let microseconds = block[1][0];
-	let milliseconds = block[2][0];
-	let seconds = block[3][0];
-	let minutes = block[4][0];
-	let hours = block[5][0];
-	let days = block[6][0];
-	let weeks = block[7][0];
-	let months = block[8][0];
-	let years = block[9][0];
+	let block = new Block(input.parentNode.parentNode),
+		num = Number(input.value),
+		nanoseconds = block[0][0],
+		microseconds = block[1][0],
+		milliseconds = block[2][0],
+		seconds = block[3][0],
+		minutes = block[4][0],
+		hours = block[5][0],
+		days = block[6][0],
+		weeks = block[7][0],
+		months = block[8][0],
+		years = block[9][0];
 	
 	if(isNaN(num))
 	{
@@ -458,9 +306,9 @@ function updateConvTime(input, setting)
 // Note: Breaks down when the input is 5.
 function updateRationalization(input)
 {
-	let block = new Block(input.parentNode.parentNode);
-	let radicand = Math.trunc(input.value);
-	let output = '√';
+	let block = new Block(input.parentNode.parentNode),
+		radicand = Math.trunc(input.value),
+		output = '√';
 	
 	if(Math.sqrt(radicand) % 1 === 0)
 		output += Math.sqrt(radicand);

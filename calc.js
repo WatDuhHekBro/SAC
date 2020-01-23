@@ -2,7 +2,7 @@
 
 function factors(num, sort = false)
 {
-	if(typeof num === 'number' && num % 1 === 0 && typeof sort === 'boolean')
+	if(num && num.constructor === Number && num % 1 === 0 && exists(sort) && sort.constructor === Boolean)
 	{
 		if(num < 0)
 			num = -num;
@@ -13,15 +13,16 @@ function factors(num, sort = false)
 			return [1];
 		else
 		{
-			var factors = [1,num];
-			var x = (num % 2 === 0) ? 2 : 3;
-			var increment = (num % 2 === 0) ? 1 : 2;
+			let factors = [1,num],
+				x = (num % 2 === 0) ? 2 : 3,
+				increment = (num % 2 === 0) ? 1 : 2;
 			
 			for(; x <= parseInt(Math.sqrt(num)); x += increment)
 			{
 				if(num % x === 0)
 				{
 					factors.push(x);
+					
 					if(num/x !== x)
 						factors.push(num/x);
 				}
@@ -34,7 +35,7 @@ function factors(num, sort = false)
 
 function GCF(a, b)
 {
-	if(typeof a === 'number' && typeof b === 'number' && a % 1 === 0 && b % 1 === 0)
+	if(a && a.constructor === Number && a % 1 === 0 && b && b.constructor === Number && b % 1 === 0)
 	{
 		if(a === 0 || b === 0)
 			return 0;
@@ -42,18 +43,18 @@ function GCF(a, b)
 			return -1;
 		else
 		{
-			var fa = factors(a, true);
-			var fb = factors(b, true);
+			let fa = factors(a, true),
+				fb = factors(b, true);
 			
 			if(fb.length < fa.length)
 			{
-				for(var i = fb.length-1; i >= 0; i--)
+				for(let i = fb.length-1; i >= 0; i--)
 					if(a % fb[i] === 0)
 						return fb[i];
 			}
 			else
 			{
-				for(var i = fa.length-1; i >= 0; i--)
+				for(let i = fa.length-1; i >= 0; i--)
 					if(b % fa[i] === 0)
 						return fa[i];
 			}
@@ -63,14 +64,14 @@ function GCF(a, b)
 
 function leap_year(year)
 {
-	if(typeof year === 'number')
+	if(year && year.constructor === Number)
 		return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 // Include some leap year thing here, either a boolean executed as the user enters their condition or the year itself, which'll use leap_year() here.
 function calendar_days(month)
 {
-	if(typeof month === 'number')
+	if(month && month.constructor === Number)
 	{
 		switch(month)
 		{

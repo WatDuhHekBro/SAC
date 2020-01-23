@@ -4,9 +4,90 @@ window.onerror = function(msg, url, lineNo, columnNo, error)
 {
 	let e = document.createElement('p');
 	e.innerHTML = `<span class="error">Message:</span> <span class="errormsg">${msg}</span><br><span class="error">Error:</span> <span class="errormsg">${error}</span><br><span class="error">Location:</span> <span class="errormsg">${url}</span><br><span class="error">Line:</span> <span class="errormsg">${lineNo}</span> <span class="error">Column:</span> <span class="errormsg">${columnNo}</span>`;
-	document.getElementById('errors') ? document.getElementById('errors').append(e) : document.body.append(e);
-	document.getElementById('error_header').hidden = false;
+	ERROR_MESSAGES ? ERROR_MESSAGES.append(e) : document.body.append(e);
+	ERROR_HEADER.hidden = false;
 };
+
+function exists(value) {return value !== undefined && value !== null;}
+
+/*const CONV_TIME = {
+	NANOSECONDS: 1000,
+	MICROSECONDS: 1000,
+	MILLISECONDS: 1000,
+	SECONDS: 60,
+	MINUTES: 60,
+	HOURS: 24,
+	DAYS: 30,
+	MONTHS: 12,
+	YEARS: 1
+};*/
+
+/**
+ * @param {Object, Number, Number} - CONV_TIME, 4, 2
+ * @returns {Array} - []
+ */
+// Use this to generate a list of time versions like milliseconds, seconds, etc.
+function generateConversions(definitions, offset, index)
+{
+	
+}
+
+function collectFunctions()
+{
+	let functions = {};
+	
+	for(let i = 0, row; row = FUNCTIONS.rows[i]; i++)
+	{
+		let key = row.cells[1].children[0].value,
+			equation = row.cells[2].children[0].value,
+			isPrefix = row.cells[3].children[0].checked,
+			index = key.indexOf('(');
+		
+		if(index !== -1)
+			key = key.substring(0, index);
+		
+		if(key && equation /*&& is valid function*/)
+		{
+			if(isPrefix)
+				functions[key] = createFunction(packFunction(parseFunction(equation)));
+			else
+				functions[key] = createFunction(packFunctionInfix(parseFunctionInfix(equation)));
+		}
+	}
+	
+	return functions;
+}
+
+function addRow(index)
+{
+	let row = index ? FUNCTIONS.insertRow(index) : FUNCTIONS.insertRow();
+	row.insertCell(0).innerHTML = '<button onclick="removeRow(this)">Delete</button>';
+	row.insertCell(1).innerHTML = '<td><input type="text" class="small"><span> = </span></td>';
+	row.insertCell(2).innerHTML = '<td><input type="text" oninput="checkRow(this)"></td>';
+	row.insertCell(3).innerHTML = '<td><input type="checkbox" onchange="checkRow(this)">Prefix Equation</td>';
+	row.insertCell(4).innerHTML = '<button onclick="addRow(this.parentNode.parentNode.rowIndex+1)">Add</button>';
+}
+
+function removeRow(e)
+{
+	let row = e.parentNode.parentNode;
+	row.parentNode.removeChild(row);
+}
+
+function checkRow(e)
+{
+	let row = e.parentNode.parentNode,
+		equation = row.cells[2].children[0].value,
+		isPrefix = row.cells[3].children[0].checked,
+		valid = isPrefix ? isValidFunction(parseFunction(equation)) : isValidFunctionInfix(parseFunctionInfix(equation));
+	
+	if(valid)
+		row.className = 'valid';
+	else
+		row.className = 'invalid';
+	
+	//console.log(row.className);
+}
 
 ///////////
 // Usage //
