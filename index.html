@@ -110,11 +110,10 @@
 		<!-- Note: Although I will later expand to allow for stuff like 9 December 2019, 2019 December 9, or even omit the year assuming it's this year, the core format remains the same: YYYY-MM-DD -->
 		<p>Coming Soon™</p>
 		<p>The starting day is <input type="date" id="input_days_start" oninput="update_days()" value="2019-12-09">. After <input type="number" id="input_days_displacement" oninput="update_days()" class="small" value="7"> days, it will be <input type="date" id="input_days_end" oninput="update_days()" value="2019-12-16">.</p>
-		
-		<script>
-			const ERROR_HEADER = document.getElementById("error_header");
-			const ERROR_MESSAGES = document.getElementById("errors");
-			const FUNCTIONS = document.getElementById("functions");
-		</script>
 	</body>
+	<script>
+		const ERROR_HEADER = document.getElementById("error_header");
+		const ERROR_MESSAGES = document.getElementById("errors");
+		const FUNCTIONS = document.getElementById("functions");
+	</script>
 </html>

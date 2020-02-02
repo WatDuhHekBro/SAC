@@ -8,6 +8,21 @@ window.onerror = function(msg, url, lineNo, columnNo, error)
 	ERROR_HEADER.hidden = false;
 };
 
+// The two types you can't use value.constructor on are undefined and null.
+// isType(5, Number) --> true
+// isType(undefined, Array) --> false (and without errors)
+// isType(null, null) --> true
+// isType(undefined, null) --> true
+function isType(value, type)
+{
+	if(value === undefined && type === undefined)
+		return true;
+	else if(value === null && type === null)
+		return true;
+	else
+		return value !== undefined && value !== null && value.constructor === type;
+}
+
 function exists(value) {return value !== undefined && value !== null;}
 
 /*const CONV_TIME = {
@@ -27,6 +42,7 @@ function exists(value) {return value !== undefined && value !== null;}
  * @returns {Array} - []
  */
 // Use this to generate a list of time versions like milliseconds, seconds, etc.
+// unit converter
 function generateConversions(definitions, offset, index)
 {
 	
@@ -109,13 +125,13 @@ class Block
 	
 	val(value)
 	{
-		if(this.block)
+		if(exists(this.block))
 		{
 			if(this.block.nodeName === 'INPUT')
 			{
 				if(this.block.type === 'text')
 				{
-					if(value && value.constructor === String)
+					if(isType(value, String))
 					{
 						let old = this.block.value;
 						this.block.value = value;
@@ -126,7 +142,7 @@ class Block
 				}
 				else if(this.block.type === 'number')
 				{
-					if(value && value.constructor === Number)
+					if(isType(value, Number))
 					{
 						let old = Number(this.block.value);
 						this.block.value = value;
@@ -137,7 +153,7 @@ class Block
 				}
 				else if(this.block.type === 'checkbox')
 				{
-					if(value !== undefined && value.constructor === Boolean)
+					if(isType(value, Boolean))
 					{
 						let old = this.block.checked;
 						this.block.checked = value;
@@ -149,7 +165,7 @@ class Block
 			}
 			else if(this.block.nodeName === 'SPAN')
 			{
-				if(value)
+				if(exists(value))
 				{
 					let old = this.block.innerHTML;
 					this.block.innerHTML = value;

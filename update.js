@@ -6,7 +6,7 @@ function updateFunctionOutput(input)
 		value = evalFunction(input.value),
 		output = 'Not a valid function expression.';
 	
-	if(value !== undefined && value !== null)
+	if(exists(value))
 	{
 		output = 'Output: ';
 		
@@ -30,7 +30,7 @@ function updateFactors(input)
 		num = evalFunction(input.value),
 		output = '';
 	
-	if(num && num.constructor === Number)
+	if(isType(num, Number))
 	{
 		num = Math.trunc(num);
 		let f = factors(num);

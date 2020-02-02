@@ -1,203 +1,237 @@
 "use strict";
 
+const OPERATOR = {
+	ADD: 1,
+	SUBTRACT: 2,
+	MULTIPLY: 3,
+	DIVIDE: 4,
+	POWER: 5,
+	COMPOSITION: 6
+};
+
+function getOperator(s)
+{
+	if(isType(s, String))
+	{
+		switch(s)
+		{
+			case '+': return OPERATOR.ADD;
+			case '-': return OPERATOR.SUBTRACT;
+			case '*': return OPERATOR.MULTIPLY;
+			case '/': return OPERATOR.DIVIDE;
+			case '^': return OPERATOR.POWER;
+			case 'o': return OPERATOR.COMPOSITION;
+		}
+	}
+}
+
 class Function
 {
 	constructor(v, l, r)
 	{
-		// In the future, have the value be more specific? {"type":"OPERATOR", "value":OPERATOR.ADD} {"type":"NUMBER", "value":420} {"type":"SPECIAL", "value":SPECIAL.X}
-		if(typeof v === 'string')
+		// Send a number for pure numbers (including pi and e) and strings for everything else.
+		// type: OPERATOR --> value: +-*/^o
+		// type: VARIABLE --> value: x (Omitted right now since everything is in one variable only.)
+		// type: NUMBER --> value: -0.5...
+		// type: SPECIAL --> value: (trig), log, ... (has attributes instead of using left and right), attributes: {base: 10 or e (log/ln)}
+		// If you want run of the mill composition, use evaluations which will be recursive: Soon(TM)
+		if(isType(v, Object))
 			this.value = v;
+		else if(isType(v, Number))
+			this.value = {"type": "NUMBER", "value": v};
+		else if(isType(v, String))
+		{
+			if(isOperatorString(v))
+				this.value = {"type": "OPERATOR", "value": getOperator(v)};
+			else if(v === 'x')
+				this.value = {"type": "VARIABLE"};
+			else if(['log','ln'].includes(v))
+				this.value = {"type": "SPECIAL", "value": "log", "attributes": {"base": v === 'ln' ? Math.E : 10}};
+			else if(['sin','cos','tan','arcsin','arccos','arctan'].includes(v))
+				this.value = {"type": "SPECIAL", "value": v};
+			else
+				this.value = {"type": "NUMBER", "value": Number(v)};
+		}
 		else
 			this.value = null;
 		
-		if(isFunction(l))
-			this.left = l;
-		else
-			this.left = null;
-		
-		if(isFunction(r))
-			this.right = r;
-		else
-			this.right = null;
+		// In a valid Function, variables and numbers are always endpoints, and operators always have two branches.
+		this.left = isType(l, Function) && exists(this.value) && this.value.type === "OPERATOR" ? l : null;
+		this.right = isType(r, Function) && exists(this.value) && this.value.type === "OPERATOR" ? r : null;
 	}
 	
 	solve(x)
 	{
-		if(typeof x === 'number')
+		if(isType(x, Number) && exists(this.value))
 		{
-			if(isEndpoint(this))
+			if(this.value.type === "OPERATOR")
 			{
-				if(this.value === 'x')
-					return x;
-				else if(this.value === 'e')
-					return Math.E;
-				else if(this.value === 'pi')
-					return Math.PI;
-				else
-					return Number(this.value);
-			}
-			else if(isOperator(this.value))
-			{
-				switch(this.value)
+				switch(this.value.value)
 				{
-					case '+': return this.left.solve(x) + this.right.solve(x);
-					case '-': return this.left.solve(x) - this.right.solve(x);
-					case '*': return this.left.solve(x) * this.right.solve(x);
-					case '/': return this.left.solve(x) / this.right.solve(x);
-					case '^': return Math.pow(this.left.solve(x), this.right.solve(x)); // iOS does not support the ** operator
+					case OPERATOR.ADD: return this.left.solve(x) + this.right.solve(x);
+					case OPERATOR.SUBTRACT: return this.left.solve(x) - this.right.solve(x);
+					case OPERATOR.MULTIPLY: return this.left.solve(x) * this.right.solve(x);
+					case OPERATOR.DIVIDE: return this.left.solve(x) / this.right.solve(x);
+					case OPERATOR.POWER: return Math.pow(this.left.solve(x), this.right.solve(x)); // iOS does not support the ** operator
 				}
 			}
+			else if(this.value.type === "VARIABLE")
+				return x;
+			else
+				return this.value.value;
 		}
 	}
 	
 	pseudo_derivative(x)
 	{
-		if(typeof x === 'number')
+		if(isType(x, Number))
 			return Number(((this.solve(x + 0.00000000001) - this.solve(x)) / 0.00000000001).toFixed(3));
 	}
 	
+	// .simplified().derivative() because 2^2's derivative will still evaluate to 4 rather than 0.
 	derivative()
 	{
-		if(isEndpoint(this))
+		if(exists(this.value))
 		{
-			if(this.value === 'x')
-				return new Function('1');
-			else
-				return new Function('0');
-		}
-		else if(isOperator(this.value))
-		{
-			switch(this.value)
+			if(this.value.type === "OPERATOR")
 			{
-				case '+': return new Function('+', this.left.derivative(), this.right.derivative());
-				case '-': return new Function('-', this.left.derivative(), this.right.derivative());
-				case '*': return new Function('+', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative()));
-				case '/': return new Function('/', new Function('-', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative())), new Function('^', this.right, new Function('2')));
-				case '^': return new Function('*', this.right, new Function('^', this.left, new Function('-', this.right, new Function('1'))));
-				//ERRONEOUS - case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1')));
-				case 'o': return new Function('o', new Function('*', this.left.derivative(), this.right.derivative()), this.right);
+				switch(this.value.value)
+				{
+					case OPERATOR.ADD: return new Function('+', this.left.derivative(), this.right.derivative());
+					case OPERATOR.SUBTRACT: return new Function('-', this.left.derivative(), this.right.derivative());
+					case OPERATOR.MULTIPLY: return new Function('+', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative()));
+					case OPERATOR.DIVIDE: return new Function('/', new Function('-', new Function('*', this.left.derivative(), this.right), new Function('*', this.left, this.right.derivative())), new Function('^', this.right, new Function(2)));
+					case OPERATOR.POWER: return new Function('*', this.right, new Function('^', this.left, new Function('-', this.right, new Function(1))));
+					//ERRONEOUS - case '^': return new Function('^', new Function('*', this.left, this.right), new Function('-', this.right, new Function('1')));
+					case OPERATOR.COMPOSITION: return new Function('o', new Function('*', this.left.derivative(), this.right.derivative()), this.right);
+				}
 			}
+			else
+				return this.value.type === "VARIABLE" ? new Function(1) : new Function(0);
 		}
 	}
 	
 	simplify()
 	{
-		if(isOperator(this.value))
+		if(exists(this.value) && this.value.type === "OPERATOR")
 		{
-			switch(this.value)
+			if(this.value.value === OPERATOR.ADD)
 			{
-				case '+':
-					// General Addition:
-					// c1 + c2, given c =/= x
-					if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) + Number(this.right.value)).toString());
-					// Addition Rule #1A:
-					// 0 + a = a
-					if(isEndpoint(this.left) && this.left.value === '0')
-						return this.right;
-					// Addition Rule #1B:
-					// a + 0 = a
-					else if(isEndpoint(this.right) && this.right.value === '0')
-						return this.left;
-					break;
-				
-				case '-':
-					// General Subtraction:
-					// c1 - c2, given c =/= x
-					if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) - Number(this.right.value)).toString());
-					// Subtraction Rule #1:
-					// 0 - a = -1 * a
-					else if(isEndpoint(this.left) && this.left.value === '0')
-						return new Function('*', new Function('-1'), this.right) ;
-					// Subtraction Rule #2:
-					// a - 0 = a
-					else if(isEndpoint(this.right) && this.right.value === '0')
-						return this.left;
-					break;
-				
-				case '*':
-					// Preference:
-					// 5*x > x*5
-					//if()
-						//
-					
-					// General Multiplication:
-					// c1 * c2, given c =/= x
-					if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) * Number(this.right.value)).toString());
-					// General Variable Multiplication A:
-					// c1 * (c2 * x) = (c1*c2)x
-					//else if(isConstant(this.left) && ( || ))
-						//return ;
-					// Multiplication Rule #1A:
-					// 1 * a = a
-					else if(isEndpoint(this.left) && this.left.value === '1')
-						return this.right;
-					// Multiplication Rule #1B:
-					// a * 1 = a
-					else if(isEndpoint(this.right) && this.right.value === '1')
-						return this.left;
-					// Multiplication Rule #2A:
-					// 0 * a = 0
-					else if(isEndpoint(this.left) && this.left.value === '0')
-						return new Function('0');
-					// Multiplication Rule #2B:
-					// a * 0 = 0
-					else if(isEndpoint(this.right) && this.right.value === '0')
-						return new Function('0');
-					break;
-					// Multiplication Rule #3A:
-					// 5*2x = 10x
-					//else if()
-				
-				case '/':
-					// General Division:
-					// c1 / c2, given c =/= x
-					/*if(isConstant(this.left) && isConstant(this.right))
-						return new Function((Number(this.left.value) / Number(this.right.value)).toString(), null, null);*/
-					// Division Rule #1:
-					// a / 1 = a
-					if(isEndpoint(this.right) && this.right.value === '1')
-						return this.left;
-					// Division Rule #2:
-					// 0 / a = 0
-					else if(isEndpoint(this.left) && this.left.value === '0')
-						return new Function('0');
-					// Division Rule #3:
-					// a / 0 = NaN
-					else if(isEndpoint(this.right) && this.right.value === '0')
-						return NaN;
-					break;
-				
-				case '^':
-					// Exponentiation Rule #1:
-					// a ^ 1 = a
-					if(isEndpoint(this.right) && this.right.value === '1')
-						return this.left;
-					// Exponentiation Rule #2:
-					// a ^ 0 = 1
-					else if(isEndpoint(this.right) && this.right.value === '0')
-						return new Function('1');
-					// Exponentiation Rule #3:
-					// 1 ^ a = 1
-					else if(isEndpoint(this.left) && this.left.value === '1')
-						return new Function('1');
-					break;
+				// General Addition:
+				// c1 + c2, given c =/= x
+				if(isConstant(this.left) && isConstant(this.right))
+					return new Function(this.left.value.value + this.right.value.value);
+				// Addition Rule #1A:
+				// 0 + a = a
+				if(isConstant(this.left, 0))
+					return this.right;
+				// Addition Rule #1B:
+				// a + 0 = a
+				else if(isConstant(this.right, 0))
+					return this.left;
 			}
+			else if(this.value.value === OPERATOR.SUBTRACT)
+			{
+				// General Subtraction:
+				// c1 - c2, given c =/= x
+				if(isConstant(this.left) && isConstant(this.right))
+					return new Function(this.left.value.value - this.right.value.value);
+				// Subtraction Rule #1:
+				// 0 - a = -1 * a
+				else if(isConstant(this.left, 0))
+					return new Function('*', new Function(-1), this.right) ;
+				// Subtraction Rule #2:
+				// a - 0 = a
+				else if(isConstant(this.right, 0))
+					return this.left;
+			}
+			else if(this.value.value === OPERATOR.MULTIPLY)
+			{
+				// Preference:
+				// 5*x > x*5
+				//if()
+					//
+				
+				// General Multiplication:
+				// c1 * c2, given c =/= x
+				if(isConstant(this.left) && isConstant(this.right))
+					return new Function(this.left.value.value * this.right.value.value);
+				// General Variable Multiplication A:
+				// c1 * (c2 * x) = (c1*c2)x
+				//else if(isConstant(this.left) && ( || ))
+					//return ;
+				// Multiplication Rule #1A:
+				// 1 * a = a
+				else if(isConstant(this.left, 1))
+					return this.right;
+				// Multiplication Rule #1B:
+				// a * 1 = a
+				else if(isConstant(this.right, 1))
+					return this.left;
+				// Multiplication Rule #2A:
+				// 0 * a = 0
+				else if(isConstant(this.left, 0))
+					return new Function(0);
+				// Multiplication Rule #2B:
+				// a * 0 = 0
+				else if(isConstant(this.right, 0))
+					return new Function(0, 0);
+				// Multiplication Rule #3A:
+				// 5*2x = 10x
+				//else if()
+			}
+			else if(this.value.value === OPERATOR.DIVIDE)
+			{
+				// General Division:
+				// c1 / c2, given c =/= x
+				if(isConstant(this.left) && isConstant(this.right))
+					return new Function(this.left.value.value / this.right.value.value);
+				// Division Rule #1:
+				// a / 1 = a
+				else if(isConstant(this.right, 1))
+					return this.left;
+				// Division Rule #2:
+				// 0 / a = 0
+				else if(isConstant(this.left, 0))
+					return new Function(0);
+				// Division Rule #3:
+				// a / 0 = NaN
+				else if(isConstant(this.right, 0))
+					return NaN;
+			}
+			else if(this.value.value === OPERATOR.POWER)
+			{
+				// General Exponentiation:
+				// c1 ^ c2, given c =/= x
+				if(isConstant(this.left) && isConstant(this.right))
+					return new Function(Math.pow(this.left.value.value, this.right.value.value));
+				// Exponentiation Rule #1:
+				// a ^ 1 = a
+				else if(isConstant(this.right, 1))
+					return this.left;
+				// Exponentiation Rule #2:
+				// a ^ 0 = 1
+				else if(isConstant(this.right, 0))
+					return new Function(1);
+				// Exponentiation Rule #3:
+				// 1 ^ a = 1
+				else if(isConstant(this.left, 1))
+					return new Function(1);
+			}
+			/*else if(this.value.value === OPERATOR.COMPOSITION)
+			{
+				
+			}*/
 		}
 		
-		if(!isEndpoint(this))
-			return new Function(this.value, this.left.simplify(), this.right.simplify());
-		else
-			return new Function(this.value);
+		return isEndpoint(this) ? new Function(this.value) : new Function(this.value, this.left.simplify(), this.right.simplify());
 	}
 	
 	simplified()
 	{
-		var loop = true;
-		var f = this;
-		var g;
+		let loop = true,
+			f = this,
+			g;
 		
 		while(loop)
 		{
@@ -211,40 +245,34 @@ class Function
 		return f;
 	}
 	
+	// add a toLaTeX method
+	
+	// Fix
 	toStringInfix()
 	{
-		var output = "";
+		let output = '';
 		
 		if(this.left !== null)
-		{
-			if(isEndpoint(this.left))
-				output += this.left.toStringInfix();
-			else
-				output += "(" + this.left.toStringInfix() + ")";
-		}
+			output += isEndpoint(this.left) ? this.left.toStringInfix() : '(' + this.left.toStringInfix() + ')';
 		if(this.value !== null && this.value !== '*') // Multiplication is the key issue here: 5*(2*x) = 5(2x)
-			output += this.value;
+			output += this.value.value;
 		if(this.right !== null)
-		{
-			if(isEndpoint(this.right))
-				output += this.right.toStringInfix();
-			else
-				output += "(" + this.right.toStringInfix() + ")";
-		}
+			output += isEndpoint(this.right) ? this.right.toStringInfix() : '(' + this.right.toStringInfix() + ')';
 		
 		return output.replace(/ /g,'');
 	}
 	
+	// Fix
 	toString()
 	{
-		var output = "";
+		let output = '';
 		
 		if(this.value !== null)
-			output += this.value;
+			output += this.value.value;
 		if(this.left !== null)
-			output += " " + this.left;
+			output += ' ' + this.left;
 		if(this.right !== null)
-			output += " " + this.right;
+			output += ' ' + this.right;
 		
 		return output;
 	}
@@ -286,13 +314,13 @@ So what can we conclude? After an operator, there is a minimum of 2 spaces forwa
 	
 	if(f !== null && f.constructor === Array)
 	{
-		if(isOperator(f[0]))
+		if(isOperatorString(f[0]))
 		{
 			var separator = 2;
 			
 			for(var i = 1; i < separator; i++)
 			{
-				if(isOperator(f[i]))
+				if(isOperatorString(f[i]))
 					separator += 2;
 			}
 			
@@ -303,12 +331,13 @@ So what can we conclude? After an operator, there is a minimum of 2 spaces forwa
 	}
 }*/
 
-function isFunction(f) {return exists(f) && f.constructor === Function;}
-function isEndpoint(f) {return isFunction(f) && f.left === null && f.right === null;}
-function isConstant(f) {return isFunction(f) && isEndpoint(f) && !isVariable(f.value);} // Technically, e and pi are constants, but we're treating them like variables to preserve accuracy.
-function isVariable(v) {return exists(v) && ['x','e','pi'].includes(v);}
+function isEndpoint(f) {return isType(f, Function) && f.left === null && f.right === null && exists(f.value) && f.value.type !== "OPERATOR";}
+function isConstant(f, num) {return isType(f, Function) && isEndpoint(f) && f.value.type === "NUMBER" && (isType(num, Number) ? f.value.value === num : true);}
+function isVariable(f) {return isType(f, Function) && isEndpoint(f) && f.value.type === "VARIABLE";}
+
+function isVariableString(v) {return exists(v) && ['x','e','pi'].includes(v);}
 function hasVariable(v) {return exists(v) && /[x,e,pi]/g.test(v);}
-function isOperator(v) {return exists(v) && '+-*/^o'.includes(v);}
+function isOperatorString(v) {return exists(v) && '+-*/^o'.includes(v);}
 function hasOperator(v) {return exists(v) && /[\+,-,\*,\/,\^,o]/g.test(v);}
 
 // Recursive String Return Function
@@ -376,7 +405,7 @@ function hasOperator(v) {return exists(v) && /[\+,-,\*,\/,\^,o]/g.test(v);}
 			}
 			else if(depth === 0)
 			{
-				if(isOperator(f[i]))
+				if(isOperatorString(f[i]))
 				{
 					if(/(\d+)([A-z])/.test(f[i])) // 36x
 					{
@@ -500,9 +529,9 @@ function evalFunction(input)
 			return TOKEN.BRACKETS;
 		else if(v === '(' || v === ')')
 			return TOKEN.PARENTHESES;
-		else if(isVariable(v))
+		else if(isVariableString(v))
 			return TOKEN.VARIABLE;
-		else if(isOperator(v))
+		else if(isOperatorString(v))
 			return TOKEN.OPERATOR;
 		else if(/[-,\d,\.]/g.test(v))
 			return TOKEN.NUMBER;
@@ -512,10 +541,10 @@ function evalFunction(input)
 	let compendium = collectFunctions(),
 		output = false;
 	
-	if(input && input.constructor === Number)
+	if(isType(input, Number))
 		return input;
 	// Later work on this entire else if block.
-	else if(input && input.constructor === String)
+	else if(isType(input, String))
 	{
 		if(!isNaN(Number(input)))
 			return Number(input);
@@ -548,10 +577,7 @@ function evalFunction(input)
 				sum += compendium[key].solve(value);
 			}
 			
-			if(returnSum)
-				output = sum;
-			else
-				output[0] = sum;
+			output[0] = sum;
 		}
 		else if(input.match(/\w'\(x\)/)) // f'(x)
 		{
@@ -585,10 +611,7 @@ function evalFunction(input)
 				sum += compendium[key].derivative().solve(value);
 			}
 			
-			if(returnSum)
-				output = sum;
-			else
-				output[0] = sum;
+			output[0] = sum;
 		}
 	}
 	
@@ -600,11 +623,9 @@ function evalFunction(input)
  */
 function isValidRange(start, end, step = 1)
 {
-	if(start && start.constructor === Number && end && end.constructor === Number && step && step.constructor === Number && step !== 0)
+	if(isType(start, Number) && isType(end, Number) && isType(step, Number) && step !== 0)
 	{
-		let negative = step < 0;
-		
-		if(negative)
+		if(step < 0)
 			return start >= end;
 		else
 			return start <= end;
@@ -619,48 +640,65 @@ function isValidRange(start, end, step = 1)
  */
 function createFunction(f)
 {
-	if(f && f.constructor === Array)
+	if(isType(f, Array))
 		return new Function(f[0], createFunction(f[1]), createFunction(f[2]));
 	else
 		return new Function(f);
 }
 
 /**
- * @param {Array} - [*,3,^,5,^,x,2]
- * @returns {Nested Array} - [*,3,[^,5,[^,x,2]]]
+ * @param {Array} - ['*','3','^','5','^','x','2']
+ * @returns {Nested Array} - ['*',3,['^',5,['^','x',2]]]
  */
 function packFunction(f)
 {
-	if(f && f.constructor === Array && isValidFunction(f))
+	if(isType(f, Array) && isValidFunction(f))
 	{
-		if(isOperator(f[0]))
+		if(isOperatorString(f[0]))
 		{
 			let separator = 2;
 			
 			for(let i = 1; i < separator; i++)
-				if(isOperator(f[i]))
+				if(isOperatorString(f[i]))
 					separator += 2;
 			
 			return [f[0], packFunction(f.slice(1,separator)), packFunction(f.slice(separator))];
 		}
+		else if(f[0] === 'x')
+			return 'x';
+		else if(f[0] === 'e')
+			return Math.E;
+		else if(f[0] === 'pi')
+			return Math.PI;
 		else
-			return f[0];
+			return Number(f[0]);
 	}
 }
 
 /**
- * @param {Array} - [3,*,5,^,x,^,2] or [3,*,5,^,[x,^,2]]
- * @returns {Nested Array} - [*,3,[^,5,[^,x,2]]]
+ * @param {Array} - ['3','*','5','^','x','^','2'] or ['3','*','5','^',['x','^','2']]
+ * @returns {Nested Array} - ['*',3,['^',5,['^','x',2]]]
  */
 function packFunctionInfix(f)
 {
-	if(f && f.constructor === Array && isValidFunctionInfix(f))
+	if(isType(f, Array) && isValidFunctionInfix(f))
 	{
 		//packFunctionInfix(parseFunctionInfix('(x^2)^3')), you have to deal with the pre-nested array case.
 		// Parentheses: LTR //
 		for(let i = 0; i < f.length; i++)
 			if(f[i].constructor === Array)
 				f[i] = packFunctionInfix(f[i]);
+		
+		// Placed after the recursion statement to avoid repeats.
+		for(let i = 0; i < f.length; i++)
+		{
+			if(f[i] === 'e')
+				f[i] = Math.E;
+			else if(f[i] === 'pi')
+				f[i] = Math.PI;
+			else if(f[i] !== 'x' && !isOperatorString(f[i]) && !isType(f[i], Array))
+				f[i] = Number(f[i]);
+		}
 		
 		// Composition: LTR //
 		for(let i = 0; i < f.length; i++)
@@ -711,22 +749,22 @@ function packFunctionInfix(f)
 
 /**
  * @param {String} - "* 3 ^ 5 ^ x 2"
- * @returns {Array} - [*,3,^,5,^,x,2]
+ * @returns {Array} - ['*','3','^','5','^','x','2']
  */
 function parseFunction(f)
 {
-	if(f && f.constructor === String)
+	if(isType(f, String))
 		return f.split(' ');
 }
 
 /**
  * @param {String} - "3 * 5^(x^2)"
- * @returns {Array} - [3,*,5,^,[x,^,2]]
+ * @returns {Array} - ['3','*','5','^',['x','^','2']]
  */
 // Later, polish/refine this function and fix problems with empty strings and pi. //
 function parseFunctionInfix(f)
 {
-	if(f && f.constructor === String)
+	if(isType(f, String))
 	{
 		const getType = function(v) {
 			if(hasVariable(v))
@@ -796,12 +834,12 @@ function parseFunctionInfix(f)
 }
 
 /**
- * @param {Array} - [*,3,^,5,^,x,2]
+ * @param {Array} - ['*','3','^','5','^','x','2']
  * @returns {Boolean} - true
  */
 function isValidFunction(f)
 {
-	if(f && f.constructor === Array && f.length >= 1)
+	if(isType(f, Array) && f.length >= 1)
 	{
 		// [5] is a valid function which just evaluates to the number 5. [*] is not, nor is [3,5].
 		let length = 1;
@@ -810,7 +848,7 @@ function isValidFunction(f)
 		{
 			if(i >= length)
 				break;
-			else if(isOperator(f[i]))
+			else if(isOperatorString(f[i]))
 				length += 2;
 		}
 		
@@ -821,19 +859,19 @@ function isValidFunction(f)
 }
 
 /**
- * @param {Array} - [3,*,5,^,x,^,2]
+ * @param {Array} - ['3','*','5','^',['x','^','2']]
  * @returns {Boolean} - true
  */
 function isValidFunctionInfix(f)
 {
-	if(f && f.constructor === Array && f.length > 0)
+	if(isType(f, Array) && f.length > 0)
 	{
 		// Cannot start with an operator!
 		let previous = true;
 		
 		for(let i = 0; i < f.length; i++)
 		{
-			if((isOperator(f[i]) && previous) || (!isOperator(f[i]) && !previous))
+			if((isOperatorString(f[i]) && previous) || (!isOperatorString(f[i]) && !previous))
 				return false;
 			previous = !previous;
 		}
